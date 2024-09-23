@@ -1,0 +1,10 @@
+.Loginlink {
+    color: rgb(25,118,210);
+    font-weight: bold;
+}
+.subtitle {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 4px 0px;
+    background: linear-gradient(135deg, #EAFFFF, #D5FCFC);
+}
