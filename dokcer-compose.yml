@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: ./en-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - examninja-network
+  backend:
+    build:
+      context: ./en-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/exam_ninja
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - examninja-network
+    depends_on:
+      db:
+        condition: service_healthy  # Wait for the db to be healthy before starting backend
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: exam_ninja
+    ports:
+      - "3307:3306"  # Optional, remove if not needed
+    networks:
+      - examninja-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+networks:
+  examninja-network:
+    driver: bridge
