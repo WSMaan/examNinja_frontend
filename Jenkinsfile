@@ -1,74 +1,86 @@
 pipeline {
     agent any
-
     environment {
-        // You can define any environment variables here if needed
-        FRONTEND_DIR = './' // Adjust this if the Jenkinsfile is not in the root
+        AWS_ACCOUNT_ID = "583187964056"
+        AWS_REGION = "us-east-2"
+        ECR_REPOSITORY_NAME = "examninja"
+        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        BACKEND_DIR = 'backend'
+        FRONTEND_DIR = 'frontend'
     }
-
     stages {
-        stage('Checkout') {
+        stage('Clone Repositories') {
             steps {
-                // Clone the frontend repository
-                git 'https://github.com/WSMaan/examNinja_frontend'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
+                dir(BACKEND_DIR) {
+                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
+                }
                 dir(FRONTEND_DIR) {
-                    // Install npm dependencies
-                    sh 'npm install'
+                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
                 }
             }
         }
-
-        stage('Run Tests') {
+        stage('Build Backend') {
             steps {
-                dir(FRONTEND_DIR) {
-                    // Run tests using Jest or any other framework
-                    sh 'npm test'
+                dir(BACKEND_DIR) {
+                    sh 'mvn clean install'
                 }
             }
         }
-
         stage('Build Frontend') {
             steps {
                 dir(FRONTEND_DIR) {
-                    // Build the React application
+                    sh 'npm install'
                     sh 'npm run build'
                 }
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Build Docker Images') {
             steps {
+                dir(BACKEND_DIR) {
+                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest ."
+                }
                 dir(FRONTEND_DIR) {
-                    // Build a Docker image for the frontend
-                    sh 'docker build -t frontend-image:latest .'
+                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest ."
                 }
             }
         }
-
-        stage('Deploy Frontend') {
+        stage('Push Docker Images to ECR') {
             steps {
-                // Deploy the built image or push it to a registry like DockerHub
-                echo 'Deploying frontend...'
-                // Example: Push Docker image to DockerHub
-                // sh 'docker push your-frontend-image:latest'
+                script {
+                    sh """
+                        aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+                        aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                    """
+                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
+                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+                }
+            }
+        }
+        stage('Deploy to Docker') {
+            steps {
+                script {
+                    // Assuming docker-compose.yml is in the root directory
+                    sh 'docker-compose down'
+                    sh 'docker-compose up -d'
+                }
             }
         }
     }
-
     post {
         always {
-            echo 'Pipeline completed.'
+            cleanWs()
         }
         success {
-            echo 'Frontend build succeeded!'
+            echo 'Pipeline succeeded!'
         }
         failure {
-            echo 'Frontend build failed!'
+            echo 'Pipeline failed!'
         }
     }
 }
+Last edited 1 minute ago
+
+
