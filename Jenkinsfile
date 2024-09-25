@@ -62,7 +62,6 @@ pipeline {
         stage('Deploy to Docker') {
             steps {
                 script {
-                    // Assuming docker-compose.yml is in the root directory
                     sh 'docker-compose down'
                     sh 'docker-compose up -d'
                 }
@@ -81,6 +80,5 @@ pipeline {
         }
     }
 }
-Last edited 1 minute ago
 
 
