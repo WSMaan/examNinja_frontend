@@ -1,17 +1,16 @@
 version: '3.8'
 services:
   frontend:
-    build:
-      context: ./en-frontend
-      dockerfile: Dockerfile
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest
     ports:
       - "3000:80"
     networks:
       - examninja-network
+    depends_on:
+      - backend
+
   backend:
-    build:
-      context: ./en-backend
-      dockerfile: Dockerfile
+    image: ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest
     ports:
       - "8081:8081"
     environment:
@@ -22,14 +21,15 @@ services:
       - examninja-network
     depends_on:
       db:
-        condition: service_healthy  # Wait for the db to be healthy before starting backend
+        condition: service_healthy
+
   db:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: exam_ninja
     ports:
-      - "3307:3306"  # Optional, remove if not needed
+      - "3307:3306"
     networks:
       - examninja-network
     healthcheck:
@@ -37,6 +37,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - mysql_data:/var/lib/mysql
+
 networks:
   examninja-network:
     driver: bridge
+
+volumes:
+  mysql_data:
