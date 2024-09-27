@@ -14,10 +14,10 @@ pipeline {
         stage('Clone Repositories') {
             steps {
                 dir(BACKEND_DIR) {
-                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
+                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'demo_github_token'
                 }
                 dir(FRONTEND_DIR) {
-                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
+                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'demo_github_token'
                 }
             }
         }
