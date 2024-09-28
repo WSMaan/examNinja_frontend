@@ -26,13 +26,21 @@ const validationSchema = Yup.object({
     lastName: Yup.string().required('Last Name is required'),
     email: Yup.string()
         .email('Enter a valid email address')
-        .matches(/@gmail\.com$/, 'Email must be from the domain gmail.com')
+        .matches(/@.*\.com$/, 'Email must contain "@" and end with ".com"')
         .required('Email is required'),
     password: Yup.string()
+        .test(
+            'no-spaces-only',
+            'Password cannot contain only spaces',
+            (value) => value && value.trim().length > 0
+        )
         .min(8, 'Password must be at least 8 characters')
         .max(15, 'Password must not exceed 15 characters')
         .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .matches(/[a-zA-Z]/, 'Password must contain at least one letter')
+        .matches(/[0-9]/, 'Password must contain at least one number')
         .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
+        .trim()
         .required('Password is required'),
     confirmPassword: Yup.string()
         .oneOf([Yup.ref('password'), null], 'Passwords must match')
@@ -61,17 +69,23 @@ const RegistrationPage = () => {
                 setSuccessMessage('Success! Your account has been created. You can now log in to your ExamNinja account.');
                 setErrorMessage(null);
                 setTimeout(() => {
-                    navigate('/login');
+                    navigate('/');
                 }, 3000);
             }
         } catch (error) {
-            if (error.status == 400) {
+            if (error && error?.status == 400) {
                 setSuccessMessage(null);
-                if(error?.response?.data?.message == "User Already Exists with this Email!"){
+                const errorMessage = error?.response?.data?.message;
+                if (errorMessage == "User Already Exists with this Email!") {
                     setErrorMessage("Oops! This email is already registered. Please try another one or log in.");
                 }
-                else setErrorMessage(error?.response?.data?.message);
+                else if (error?.response?.data?.error?.password) {
+                    setSuccessMessage(null);
+                    setErrorMessage(error?.response?.data?.error?.password);
+                }
+                else setErrorMessage(errorMessage || "An error occurred. Please try again.");
             }
+            else  setErrorMessage("An unexpected error occurred. Please try again.");
         }
     };
 
@@ -186,7 +200,7 @@ const RegistrationPage = () => {
                     </Formik>
                     <Typography variant="body2" sx={{ mt: 2 }}>
                         Already have an account?{' '}
-                        <Link to="/login" variant="body2" style={{ textDecoration: 'none', color: 'primary' }} className='Loginlink'>
+                        <Link to="/" variant="body2" style={{ textDecoration: 'none', color: 'primary' }} className='Loginlink'>
                             Log In
                         </Link>
                     </Typography>

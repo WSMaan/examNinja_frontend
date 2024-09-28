@@ -12,13 +12,21 @@ import '../styles/Registration.css';
 const validationSchema = Yup.object({
   email: Yup.string()
     .email('Enter a valid email address')
-    .matches(/@gmail\.com$/, 'Email must be from the domain gmail.com')
+    .matches(/@.*\.com$/, 'Email must contain "@" and end with ".com"')
     .required('Email is required'),
   password: Yup.string()
+    .test(
+      'no-spaces-only',
+      'Password cannot contain only spaces',
+      (value) => value && value.trim().length > 0
+    )
     .min(8, 'Password must be at least 8 characters')
     .max(15, 'Password must not exceed 15 characters')
     .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .matches(/[a-zA-Z]/, 'Password must contain at least one letter')
+    .matches(/[0-9]/, 'Password must contain at least one number')
     .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
+    .trim()
     .required('Password is required'),
 });
 
@@ -42,11 +50,20 @@ const LoginPage = () => {
         setSuccessMessage(null);
         setErrorMessage('No account associated with this email address. Please check your email or create a new account.');
       }
-      else if (error && error?.status == 400 && error?.response?.data?.message == "Incorrect password") {
-        setSuccessMessage(null);
-        setErrorMessage('Oops! The password you entered is incorrect. Please try again.');
-      }
-      else {
+      else if (error?.status === 400) {
+        const errorMessage = error?.response?.data?.message;
+
+        if (errorMessage === "Incorrect password") {
+            setErrorMessage('Oops! The password you entered is incorrect. Please try again.');
+        } 
+        else if (error?.response?.data?.error?.password) {
+            setErrorMessage(error?.response?.data?.error?.password);
+        } 
+        else {
+            setErrorMessage(errorMessage || 'An error occurred. Please try again.');
+        }
+    }
+        else {
         setSuccessMessage(null);
         setErrorMessage('An unexpected error occurred. Please try again later.');
       }
@@ -72,7 +89,7 @@ const LoginPage = () => {
           <Typography variant="h5" align="left" sx={{ fontWeight: 'bold' }}>Login</Typography>
           <Typography variant="body2" align="left" sx={{ mt: 1, mb: 2 }}>
             Doesn't have an account yet?{' '}
-            <Link to="/" variant="body2" style={{ textDecoration: 'none', color: 'primary' }} className='Loginlink'>
+            <Link to="/register" variant="body2" style={{ textDecoration: 'none', color: 'primary' }} className='Loginlink'>
               Register here
             </Link>
           </Typography>
@@ -113,9 +130,9 @@ const LoginPage = () => {
                     />
                   </Grid>
                   <Typography variant="body2" align="right" >
-                  <Link   variant="body2"  className='Loginlink'>
-                    Forgot Password?
-                  </Link>
+                    <Link variant="body2" className='Loginlink'>
+                      Forgot Password?
+                    </Link>
                   </Typography>
                 </Grid>
                 <Button
