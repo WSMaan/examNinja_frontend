@@ -34,13 +34,17 @@ const validationSchema = Yup.object({
             'Password cannot contain only spaces',
             (value) => value && value.trim().length > 0
         )
+        .test(
+            'trimmed-length',
+            'Password must be between 8 and 15 characters',
+            (value) => value && value.trim().length >= 8 && value.trim().length <= 15
+        )
         .min(8, 'Password must be at least 8 characters')
         .max(15, 'Password must not exceed 15 characters')
         .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
         .matches(/[a-zA-Z]/, 'Password must contain at least one letter')
         .matches(/[0-9]/, 'Password must contain at least one number')
         .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
-        .trim()
         .required('Password is required'),
     confirmPassword: Yup.string()
         .oneOf([Yup.ref('password'), null], 'Passwords must match')
