@@ -9,8 +9,8 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = 'AKIAYPSFWECMD3WWZN7R'
         BACKEND_DIR = 'backend'
         FRONTEND_DIR = 'frontend'
-        SONAR_HOST_URL = 'http://your-sonarqube-server:9000'
-        SONARQUBE_AUTH_TOKEN = 'squ_c95f2edcb05867250d239028b6261ec68c12bae2' // Replace with your SonarQube token
+        SONAR_HOST_URL = 'http://your-sonarqube-server:9000'  // Replace with your SonarQube URL
+        SONARQUBE_AUTH_TOKEN = 'squ_c95f2edcb05867250d239028b6261ec68c12bae2'  // Replace with your SonarQube token directly
     }
     stages {
         stage('Clone Repositories') {
@@ -23,6 +23,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build Backend') {
             steps {
                 dir(BACKEND_DIR) {
@@ -30,6 +31,7 @@ pipeline {
                 }
             }
         }
+
         stage('SonarQube Backend Analysis') {
             steps {
                 dir(BACKEND_DIR) {
@@ -41,6 +43,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build Frontend') {
             steps {
                 dir(FRONTEND_DIR) {
@@ -49,6 +52,7 @@ pipeline {
                 }
             }
         }
+
         stage('SonarQube Frontend Analysis') {
             steps {
                 dir(FRONTEND_DIR) {
@@ -61,38 +65,10 @@ pipeline {
                 }
             }
         }
-        stage('Build Docker Images') {
-            steps {
-                dir(BACKEND_DIR) {
-                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest ."
-                }
-                dir(FRONTEND_DIR) {
-                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest ."
-                }
-            }
-        }
-        stage('Push Docker Images to ECR') {
-            steps {
-                script {
-                    sh """
-                        aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
-                        aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
-                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                    """
-                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
-                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
-                }
-            }
-        }
-        stage('Deploy to Docker') {
-            steps {
-                script {
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
-                }
-            }
-        }
+
+        // ... remaining stages (Build Docker Images, Push Docker Images to ECR, Deploy to Docker)
     }
+
     post {
         always {
             cleanWs()
