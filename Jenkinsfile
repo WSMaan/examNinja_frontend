@@ -54,7 +54,8 @@ pipeline {
                 dir(FRONTEND_DIR) {
                     script {
                         withSonarQubeEnv('SonarQube') {
-                            sh "sonar-scanner -Dsonar.projectKey=frontend_project -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARQUBE_AUTH_TOKEN}"
+                            def scannerHome = tool 'SonarQubeScanner'  // Reference the SonarQube Scanner installed in Jenkins
+                            sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=frontend_project -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARQUBE_AUTH_TOKEN}"
                         }
                     }
                 }
