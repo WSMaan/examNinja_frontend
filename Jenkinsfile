@@ -5,10 +5,12 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMLX2AHZDE'
-        AWS_SECRET_ACCESS_KEY = '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'
+        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMD3WWZN7R'
+        AWS_SECRET_ACCESS_KEY = 'AKIAYPSFWECMD3WWZN7R'
         BACKEND_DIR = 'backend'
         FRONTEND_DIR = 'frontend'
+        SONAR_HOST_URL = 'http://your-sonarqube-server:9000'
+        SONARQUBE_AUTH_TOKEN = 'squ_c95f2edcb05867250d239028b6261ec68c12bae2' // Replace with your SonarQube token
     }
     stages {
         stage('Clone Repositories') {
@@ -28,11 +30,33 @@ pipeline {
                 }
             }
         }
+        stage('SonarQube Backend Analysis') {
+            steps {
+                dir(BACKEND_DIR) {
+                    script {
+                        withSonarQubeEnv('SonarQube') {
+                            sh "mvn sonar:sonar -Dsonar.projectKey=backend_project -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARQUBE_AUTH_TOKEN}"
+                        }
+                    }
+                }
+            }
+        }
         stage('Build Frontend') {
             steps {
                 dir(FRONTEND_DIR) {
                     sh 'npm install'
                     sh 'npm run build'
+                }
+            }
+        }
+        stage('SonarQube Frontend Analysis') {
+            steps {
+                dir(FRONTEND_DIR) {
+                    script {
+                        withSonarQubeEnv('SonarQube') {
+                            sh "sonar-scanner -Dsonar.projectKey=frontend_project -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARQUBE_AUTH_TOKEN}"
+                        }
+                    }
                 }
             }
         }
@@ -80,5 +104,3 @@ pipeline {
         }
     }
 }
-
-
