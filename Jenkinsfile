@@ -9,8 +9,7 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = 'AKIAYPSFWECMD3WWZN7R'
         BACKEND_DIR = 'backend'
         FRONTEND_DIR = 'frontend'
-        SONAR_HOST_URL = 'http://your-sonarqube-server:9000'  // Replace with your SonarQube URL
-        SONARQUBE_AUTH_TOKEN = 'squ_c95f2edcb05867250d239028b6261ec68c12bae2'  // Replace with your SonarQube token directly
+        TESTING_DIR = 'examNinja-testing'  // New testing repository
     }
     stages {
         stage('Clone Repositories') {
@@ -21,6 +20,9 @@ pipeline {
                 dir(FRONTEND_DIR) {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
                 }
+                dir(TESTING_DIR) {
+                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja-testing.git', credentialsId: 'GIT_HUB'
+                }
             }
         }
 
@@ -28,18 +30,6 @@ pipeline {
             steps {
                 dir(BACKEND_DIR) {
                     sh 'mvn clean install'
-                }
-            }
-        }
-
-        stage('SonarQube Backend Analysis') {
-            steps {
-                dir(BACKEND_DIR) {
-                    script {
-                        withSonarQubeEnv('SonarQube') {
-                            sh "mvn sonar:sonar -Dsonar.projectKey=backend_project -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARQUBE_AUTH_TOKEN}"
-                        }
-                    }
                 }
             }
         }
@@ -53,20 +43,39 @@ pipeline {
             }
         }
 
-        stage('SonarQube Frontend Analysis') {
+        stage('Run Tests') {
             steps {
-                dir(FRONTEND_DIR) {
-                    script {
-                        withSonarQubeEnv('SonarQube') {
-                            def scannerHome = tool 'SonarQubeScanner'  // Reference the SonarQube Scanner installed in Jenkins
-                            sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=frontend_project -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONARQUBE_AUTH_TOKEN}"
-                        }
-                    }
+                dir(TESTING_DIR) {
+                    // Add commands to run your tests here
+                    sh 'npm test'  // Example command to run tests
                 }
             }
         }
 
-        // ... remaining stages (Build Docker Images, Push Docker Images to ECR, Deploy to Docker)
+        stage('Build Docker Images') {
+            steps {
+                // Build Docker images for backend and frontend
+                dir(BACKEND_DIR) {
+                    sh 'docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest .'
+                }
+                dir(FRONTEND_DIR) {
+                    sh 'docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest .'
+                }
+            }
+        }
+
+        stage('Push Docker Images to ECR') {
+            steps {
+                // Authenticate Docker to ECR
+                sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
+
+                // Push images to ECR
+                sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest'
+                sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest'
+            }
+        }
+
+        // Add more stages as needed for deployment, etc.
     }
 
     post {
