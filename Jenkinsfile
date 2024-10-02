@@ -9,7 +9,7 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = 'AKIAYPSFWECMD3WWZN7R'
         BACKEND_DIR = 'backend'
         FRONTEND_DIR = 'frontend'
-        FAILURE_REASON = ''  // To capture failure reason (backend, frontend, or general)
+        FAILURE_REASON = ''  // To capture failure reason
     }
     stages {
         stage('Clone Repositories') {
