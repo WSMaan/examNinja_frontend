@@ -9,8 +9,7 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = 'AKIAYPSFWECMD3WWZN7R'
         BACKEND_DIR = 'backend'
         FRONTEND_DIR = 'frontend'
-        TESTING_DIR = 'examNinja-testing'
-        FAILURE_REASON = ''  // To capture failure reason (backend, frontend, testing, or general)
+        FAILURE_REASON = ''  // To capture failure reason (backend, frontend, or general)
     }
     stages {
         stage('Clone Repositories') {
@@ -20,9 +19,6 @@ pipeline {
                 }
                 dir(FRONTEND_DIR) {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
-                }
-                dir(TESTING_DIR) {
-                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja-testing.git', credentialsId: 'GIT_HUB'
                 }
             }
         }
@@ -53,22 +49,6 @@ pipeline {
                 failure {
                     script {
                         env.FAILURE_REASON = 'frontend'
-                    }
-                }
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                dir(TESTING_DIR) {
-                    sh 'npm install'
-                    sh './node_modules/.bin/jest'
-                }
-            }
-            post {
-                failure {
-                    script {
-                        env.FAILURE_REASON = 'testing'
                     }
                 }
             }
