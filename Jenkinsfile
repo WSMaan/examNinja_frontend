@@ -156,7 +156,7 @@ pipeline {
                     )
                 } else {
                     emailext(
-                        to: 'marymca27@gmail.com, emailtoksharma@gmail.com, mohanagigtech@gmail.com',
+                        to: 'marymca27@gmail.com, emailtoksharma@gmail.com, wsmaan896@gmail.com', mohanagigtech@gmail.com',
                         subject: "Jenkins: Pipeline Failed for ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
                         body: """
                             Hi,
