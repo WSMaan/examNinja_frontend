@@ -72,6 +72,20 @@ pipeline {
                 sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest'
             }
         }
+
+        stage('Deploy to EKS') {
+            steps {
+                // Ensure kubectl is configured for your EKS cluster
+                sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja' // Change 'my-cluster' to your cluster name
+                // Apply Kubernetes deployment files
+                dir(BACKEND_DIR) {
+                    sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
+                }
+                dir(FRONTEND_DIR) {
+                    sh 'kubectl apply -f k8s/frontend-deployment.yaml' // Ensure your frontend deployment file is correctly defined
+                }
+            }
+        }
     }
 
     post {
