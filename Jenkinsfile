@@ -1,12 +1,12 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCOUNT_ID = "583187964056"
-        AWS_REGION = "us-east-2"
+        AWS_ACCOUNT_ID = "954976294733"
+        AWS_REGION = "eu-north-1"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMHFCKEL6B'
-        AWS_SECRET_ACCESS_KEY = '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'
+        AWS_ACCESS_KEY_ID = 'AKIA54WIF25G5VQOVB45'
+        AWS_SECRET_ACCESS_KEY = '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'
         BACKEND_DIR = 'backend'
         FRONTEND_DIR = 'frontend'
         FAILURE_REASON = ''  // To capture failure reason

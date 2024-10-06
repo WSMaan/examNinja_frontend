@@ -31,3 +31,10 @@ export const loginUser = async (userData) => {
         throw error;
     }
 };
+
+export const resetPassword = async (values) => {
+    return axios.put('/api/users/change-password', {
+      email: values.email,
+      password: values.password,
+    });
+  };
