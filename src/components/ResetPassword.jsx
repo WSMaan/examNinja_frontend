@@ -34,8 +34,8 @@ const ResetPassword = ({ onClose }) => {
     try {
       const response = await resetPassword({
         email: values.email,
-        password: values.password,  // Only sending the password field, not confirmPassword
-      });  // Call the API to reset password
+        password: values.password, // Only sending email and password
+      });
       if (response && response.status === 200) {
         setSuccessMessage('Password updated successfully');
         setErrorMessage(null);
