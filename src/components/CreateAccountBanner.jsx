@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import crtAccount from '../assets/images/createaccount.jpg'; // Replace with your image path
+import crtAccount from '../asset/images/createaccount.JPG'; // Replace with your image path
 
 const CreateAccountBanner = () => {
     return (
