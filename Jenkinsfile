@@ -1,12 +1,12 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCOUNT_ID = "954976294733"
-        AWS_REGION = "eu-north-1"
+        AWS_ACCOUNT_ID = "583187964056"
+        AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = 'AKIA54WIF25G5VQOVB45'
-        AWS_SECRET_ACCESS_KEY = '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'
+        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMFUDEPHEI'
+        AWS_SECRET_ACCESS_KEY = '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'
         BACKEND_DIR = 'backend'
         FRONTEND_DIR = 'frontend'
         FAILURE_REASON = ''  // To capture failure reason
@@ -70,6 +70,20 @@ pipeline {
                 sh 'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
                 sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest'
                 sh 'docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest'
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                // Ensure kubectl is configured for your EKS cluster
+                sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja' // Change 'my-cluster' to your cluster name
+                // Apply Kubernetes deployment files
+                dir(BACKEND_DIR) {
+                    sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
+                }
+                dir(FRONTEND_DIR) {
+                    sh 'kubectl apply -f k8s/frontend-deployment.yaml' // Ensure your frontend deployment file is correctly defined
+                }
             }
         }
     }
