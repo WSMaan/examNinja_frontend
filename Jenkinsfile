@@ -75,9 +75,9 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                // Ensure kubectl is configured for your EKS cluster
+                 Ensure kubectl is configured for your EKS cluster
                 sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja' // Change 'my-cluster' to your cluster name
-                // Apply Kubernetes deployment files
+                 Apply Kubernetes deployment files
                 dir(BACKEND_DIR) {
                     sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
                 }
@@ -92,15 +92,15 @@ pipeline {
     always {
         cleanWs()
     }
-    // failure {
-    //     script {
-    //         echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
-    //         slackSend(channel: '#exam-ninja', color: 'danger', message: "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage. Check Jenkins for details.")
-    //     }
-    // }
-    // success {
-    //     slackSend(channel: '#exam-ninja', color: 'good', message: 'Pipeline succeeded!')
-    //     echo 'Pipeline succeeded!'
-    // }
+     failure {
+         script {
+             echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
+             slackSend(channel: '#exam-ninja', color: 'danger', message: "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage. Check Jenkins for details.")
+         }
+     }
+     success {
+         slackSend(channel: '#exam-ninja', color: 'good', message: 'Pipeline succeeded!')
+         echo 'Pipeline succeeded!'
+     }
 }
 }
