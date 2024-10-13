@@ -8,7 +8,7 @@ import { loginUser } from '../services/APIservice.jsx';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import '../styles/Registration.css';
-
+import  ResetPassword from '../components/ResetPassword.jsx';  // Import ForgotPassword component
 
 const validationSchema = Yup.object({
   email: Yup.string()
