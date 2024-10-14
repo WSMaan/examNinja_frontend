@@ -5,8 +5,8 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMFUDEPHEI" // Hardcoded Access Key ID
-        AWS_SECRET_ACCESS_KEY = "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" // Hardcoded Secret Access Key
+        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRD4" // Hardcoded Access Key ID
+        AWS_SECRET_ACCESS_KEY = "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" // Hardcoded Secret Access Key
     }
     stages {
         stage('Clone Repositories') {
