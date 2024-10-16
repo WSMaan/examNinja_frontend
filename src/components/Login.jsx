@@ -8,7 +8,7 @@ import { loginUser } from '../services/APIservice.jsx';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import '../styles/Registration.css';
-//import  ResetPassword from '../Component/Resetpassword.jsx';  // Import ForgotPassword component
+import  ResetPassword from '../components/ResetPassword.jsx';  // Import ForgotPassword component
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -114,7 +114,7 @@ const LoginPage = () => {
                   </Grid>
                   <Typography variant="body2" align="right" >
                    
-                    <Button to='/pass' variant="text" onClick={() => setOpenModal(true)} className='Loginlink'>
+                    <Button variant="text" onClick={() => setOpenModal(true)} className='Loginlink'>
                       Forgot Password?
                     </Button>
                   </Typography>
@@ -144,7 +144,7 @@ const LoginPage = () => {
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
           width: 400, bgcolor: 'background.paper', p: 4, boxShadow: 24, borderRadius: 2,
         }}>
-        
+        <ResetPassword/>
      
         </Box>
       </Modal>
