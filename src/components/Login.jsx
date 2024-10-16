@@ -8,7 +8,7 @@ import { loginUser } from '../services/APIservice.jsx';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import '../styles/Registration.css';
-import  ResetPassword from '../components/ResetPassword.jsx';  // Import ForgotPassword component
+//import  ResetPassword from '../components/ResetPassword.jsx';  // Import ForgotPassword component
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -123,9 +123,9 @@ const LoginPage = () => {
                     />
                   </Grid>
                   <Typography variant="body2" align="right" >
-                    <Button  variant="text" onClick={() => setOpenModal(true)} className='Loginlink'>
+                  <Link variant="body2" className='Loginlink'>
                       Forgot Password?
-                    </Button>
+                    </Link>
                   </Typography>
                 </Grid>
                 <Button
@@ -142,20 +142,7 @@ const LoginPage = () => {
         </Box>
       </Card>
 
-      {/* Forgot Password Modal */}
-      <Modal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        aria-labelledby="forgot-password-modal"
-        aria-describedby="forgot-password-form"
-      >
-        <Box sx={{
-          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: 400, bgcolor: 'background.paper', p: 4, boxShadow: 24, borderRadius: 2,
-        }}>
-          <ResetPassword />  {/* Include ForgotPassword component inside the modal */}
-        </Box>
-      </Modal>
+   
     </Container>
   );
 };
