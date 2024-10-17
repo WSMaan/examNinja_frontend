@@ -101,7 +101,17 @@ pipeline {
             }
         }
         success {
-            echo 'Pipeline succeeded!'
+            script {
+                echo 'Pipeline succeeded!'
+                emailext (
+                    to: 'wsmaan896@gmail.com',
+                    subject: "Build Succeeded: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """<h1>Build Succeeded</h1>
+                              <p>The pipeline has completed successfully. You can view the results at <a href="${env.RUN_DISPLAY_URL}">${env.RUN_DISPLAY_URL}</a>.</p>
+                           """,
+                    mimeType: 'text/html'
+                )
+            }
         }
     }
 }
