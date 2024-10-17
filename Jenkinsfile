@@ -90,6 +90,14 @@ pipeline {
         failure {
             script {
                 echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
+                emailext (
+                    to: 'wsmaan896@gmail.com',
+                    subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """<h1>Build Failed</h1>
+                              <p>Pipeline failed in the ${env.FAILURE_REASON} stage. Please check the console output at <a href="${env.RUN_DISPLAY_URL}">${env.RUN_DISPLAY_URL}</a>.</p>
+                           """,
+                    mimeType: 'text/html'
+                )
             }
         }
         success {
