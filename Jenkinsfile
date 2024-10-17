@@ -70,17 +70,17 @@ pipeline {
             }
         }
 
-        stage('Deploy to EKS') {
-            steps {
-                sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
-                dir('backend') {
-                    sh 'kubectl apply -f k8s/backend-deployment.yaml'
-                }
-                dir('frontend') {
-                    sh 'kubectl apply -f k8s/frontend-deployment.yaml'
-                }
-            }
-        }
+        // stage('Deploy to EKS') {
+        //     steps {
+        //         sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
+        //         dir('backend') {
+        //             sh 'kubectl apply -f k8s/backend-deployment.yaml'
+        //         }
+        //         dir('frontend') {
+        //             sh 'kubectl apply -f k8s/frontend-deployment.yaml'
+        //         }
+        //     }
+        // }
     }
 
     post {
