@@ -6,6 +6,8 @@ pipeline {
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
+        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRD4" // Hardcoded AWS Access Key
+        AWS_SECRET_ACCESS_KEY = "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" // Hardcoded AWS Secret Key
     }
     stages {
         stage('Clone Repositories') {
@@ -78,6 +80,10 @@ pipeline {
         stage('Push Docker Images to ECR') {
             steps {
                 script {
+                    // Set AWS credentials for the AWS CLI
+                    sh "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+                    sh "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+                    
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
                     sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
                     sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
