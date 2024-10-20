@@ -5,80 +5,113 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = 'AKIAYPSFWECMLX2AHZDE'
-        AWS_SECRET_ACCESS_KEY = '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'
-        BACKEND_DIR = 'backend'
-        FRONTEND_DIR = 'frontend'
+        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRD4" // Hardcoded Access Key ID
+        AWS_SECRET_ACCESS_KEY = "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" // Hardcoded Secret Access Key
     }
     stages {
         stage('Clone Repositories') {
             steps {
-                dir(BACKEND_DIR) {
+                dir('backend') {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
                 }
-                dir(FRONTEND_DIR) {
+                dir('frontend') {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
                 }
             }
         }
+
         stage('Build Backend') {
             steps {
-                dir(BACKEND_DIR) {
+                dir('backend') {
                     sh 'mvn clean install'
                 }
             }
+            post {
+                failure {
+                    script {
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+            }
         }
+
         stage('Build Frontend') {
             steps {
-                dir(FRONTEND_DIR) {
+                dir('frontend') {
                     sh 'npm install'
                     sh 'npm run build'
                 }
             }
+            post {
+                failure {
+                    script {
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+            }
         }
+
         stage('Build Docker Images') {
             steps {
-                dir(BACKEND_DIR) {
+                dir('backend') {
                     sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest ."
                 }
-                dir(FRONTEND_DIR) {
+                dir('frontend') {
                     sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest ."
                 }
             }
         }
+
         stage('Push Docker Images to ECR') {
             steps {
-                script {
-                    sh """
-                        aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
-                        aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
-                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                    """
-                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
-                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
-                }
+                sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
+                sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
             }
         }
-        stage('Deploy to Docker') {
-            steps {
-                script {
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
-                }
-            }
-        }
+
+        // stage('Deploy to EKS') {
+        //     steps {
+        //         sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
+        //         dir('backend') {
+        //             sh 'kubectl apply -f k8s/backend-deployment.yaml'
+        //         }
+        //         dir('frontend') {
+        //             sh 'kubectl apply -f k8s/frontend-deployment.yaml'
+        //         }
+        //     }
+        // }
     }
+
     post {
         always {
             cleanWs()
         }
-        success {
-            echo 'Pipeline succeeded!'
-        }
         failure {
-            echo 'Pipeline failed!'
+            script {
+                echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
+                emailext (
+                    to: 'wsmaan896@gmail.com',
+                    subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """<h1>Build Failed</h1>
+                              <p>Pipeline failed in the ${env.FAILURE_REASON} stage. Please check the console output at <a href="${env.RUN_DISPLAY_URL}">${env.RUN_DISPLAY_URL}</a>.</p>
+                           """,
+                    mimeType: 'text/html'
+                )
+            }
+        }
+        success {
+            script {
+                echo 'Pipeline succeeded!'
+                emailext (
+                    to: 'wsmaan896@gmail.com',
+                    subject: "Build Succeeded: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """<h1>Build Succeeded</h1>
+                              <p>The pipeline has completed successfully. You can view the results at <a href="${env.RUN_DISPLAY_URL}">${env.RUN_DISPLAY_URL}</a>.</p>
+                           """,
+                    mimeType: 'text/html'
+                )
+            }
         }
     }
 }
-
-

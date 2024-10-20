@@ -34,6 +34,7 @@ export const loginUser = async (userData) => {
 };
 
 
+
 export const getTestsForUser = async (token) => {
     try {
         const response = await fetch(`${TESTS_URL}/user`, {
@@ -55,3 +56,11 @@ export const getTestsForUser = async (token) => {
         throw new Error('Failed to load tests. Please try again later.');
     }
 };
+
+export const resetPassword = async (values) => {
+    return axios.put('/api/users/change-password', {
+      email: values.email,
+      password: values.password,
+    });
+  };
+
