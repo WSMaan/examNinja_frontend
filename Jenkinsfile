@@ -52,7 +52,8 @@ pipeline {
                 withSonarQubeEnv('SQ1') {
                     dir('backend') {
                         sh """
-                        mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
+                        mvn clean install
+                        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
                         -Dsonar.projectKey=examNinja-backend \
                         -Dsonar.sources=src \
                         -Dsonar.java.binaries=target/classes \
