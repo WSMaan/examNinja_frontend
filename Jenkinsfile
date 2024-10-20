@@ -7,7 +7,6 @@ pipeline {
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRD4" // Hardcoded Access Key ID
         AWS_SECRET_ACCESS_KEY = "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" // Hardcoded Secret Access Key
-        SONAR_URL = "http://3.17.63.237:9000" // Hardcoded SonarQube URL
         SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
     }
     stages {
@@ -55,11 +54,13 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                dir('backend') {
-                    sh "sonar-scanner -Dsonar.projectKey=examNinja-backend -Dsonar.sources=src -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_TOKEN}"
-                }
-                dir('frontend') {
-                    sh "sonar-scanner -Dsonar.projectKey=examNinja-frontend -Dsonar.sources=src -Dsonar.host.url=${SONAR_URL} -Dsonar.login=${SONAR_TOKEN}"
+                withSonarQubeEnv('SQ1') {
+                    dir('backend') {
+                        sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=examNinja-backend -Dsonar.sources=src'
+                    }
+                    dir('frontend') {
+                        sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=examNinja-frontend -Dsonar.sources=src'
+                    }
                 }
             }
         }
