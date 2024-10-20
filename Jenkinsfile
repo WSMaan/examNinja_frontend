@@ -14,6 +14,7 @@ pipeline {
             steps {
                 dir('backend') {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
+                    sh 'chmod +x mvnw' // Make mvnw executable
                 }
                 dir('frontend') {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
@@ -24,7 +25,7 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    sh 'mvn clean install'
+                    sh './mvnw clean install' // Use the executable mvnw script
                 }
             }
             post {
