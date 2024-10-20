@@ -54,10 +54,21 @@ pipeline {
             steps {
                 withSonarQubeEnv('SQ1') {
                     dir('backend') {
-                        sh "mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=examNinja-backend -Dsonar.sources=src -Dsonar.exclusions=**/src/test/**"
+                        sh """
+                        mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
+                        -Dsonar.projectKey=examNinja-backend \
+                        -Dsonar.sources=src \
+                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.exclusions=**/src/test/**
+                        """
                     }
                     dir('frontend') {
-                        sh "mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=examNinja-frontend -Dsonar.sources=src -Dsonar.exclusions=**/src/test/**"
+                        sh """
+                        mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
+                        -Dsonar.projectKey=examNinja-frontend \
+                        -Dsonar.sources=src \
+                        -Dsonar.exclusions=**/src/test/**
+                        """
                     }
                 }
             }
@@ -82,7 +93,6 @@ pipeline {
         //         sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
         //     }
         // }
-
     }
 
     post {
