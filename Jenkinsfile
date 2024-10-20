@@ -58,6 +58,7 @@ pipeline {
                         -Dsonar.sources=src \
                         -Dsonar.java.binaries=target/classes \
                         -Dsonar.exclusions=**/src/test/**
+                        -Dsonar.jacoco.reportPaths=target/jacoco.exec
                         """
                     }
                     // Frontend doesn't need SonarQube analysis here, as it will be done with a different tool (e.g., ESLint, if needed).
