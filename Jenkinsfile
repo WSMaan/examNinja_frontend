@@ -18,7 +18,6 @@ pipeline {
                 }
             }
         }
-
         stage('Build Backend') {
             steps {
                 dir('backend') {
@@ -33,7 +32,6 @@ pipeline {
                 }
             }
         }
-
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
@@ -49,7 +47,6 @@ pipeline {
                 }
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SQ1') {
@@ -66,7 +63,6 @@ pipeline {
                 }
             }
         }
-
         stage('Build Docker Images') {
             steps {
                 dir('backend') {
@@ -77,7 +73,6 @@ pipeline {
                 }
             }
         }
-
         // Optional: Push Docker Images to ECR
         // stage('Push Docker Images to ECR') {
         //     steps {
@@ -89,7 +84,6 @@ pipeline {
         //     }
         // }
     }
-
     post {
         always {
             cleanWs()
