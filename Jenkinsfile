@@ -53,15 +53,15 @@ pipeline {
                     dir('backend') {
                         sh """
                         mvn clean install
+                        mvn org.jacoco:jacoco-maven-plugin:prepare-agent install
                         mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
                         -Dsonar.projectKey=examNinja-backend \
                         -Dsonar.sources=src \
                         -Dsonar.java.binaries=target/classes \
-                        -Dsonar.exclusions=**/src/test/**
-                        -Dsonar.jacoco.reportPaths=target/jacoco.exec
+                        -Dsonar.exclusions=**/src/test/** \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }
-                    // Frontend doesn't need SonarQube analysis here, as it will be done with a different tool (e.g., ESLint, if needed).
                 }
             }
         }
