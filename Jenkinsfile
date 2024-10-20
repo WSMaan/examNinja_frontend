@@ -62,14 +62,7 @@ pipeline {
                         -Dsonar.exclusions=**/src/test/**
                         """
                     }
-                    dir('frontend') {
-                        sh """
-                        mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
-                        -Dsonar.projectKey=examNinja-frontend \
-                        -Dsonar.sources=src \
-                        -Dsonar.exclusions=**/src/test/**
-                        """
-                    }
+                    // Frontend doesn't need SonarQube analysis here, as it will be done with a different tool (e.g., ESLint, if needed).
                 }
             }
         }
@@ -85,12 +78,14 @@ pipeline {
             }
         }
 
-        // Commented out the push to ECR stage
+        // Optional: Push Docker Images to ECR
         // stage('Push Docker Images to ECR') {
         //     steps {
-        //         sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-        //         sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
-        //         sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+        //         script {
+        //             sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+        //             sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
+        //             sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+        //         }
         //     }
         // }
     }
