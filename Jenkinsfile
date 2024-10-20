@@ -14,7 +14,6 @@ pipeline {
             steps {
                 dir('backend') {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
-                    sh 'chmod +x mvnw' // Make mvnw executable
                 }
                 dir('frontend') {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
@@ -25,7 +24,7 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    sh './mvnw clean install' // Use the executable mvnw script
+                    sh 'mvn clean install' // Using installed Maven
                 }
             }
             post {
@@ -57,10 +56,10 @@ pipeline {
             steps {
                 withSonarQubeEnv('SQ1') {
                     dir('backend') {
-                        sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=examNinja-backend -Dsonar.sources=src'
+                        sh 'mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=examNinja-backend -Dsonar.sources=src'
                     }
                     dir('frontend') {
-                        sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=examNinja-frontend -Dsonar.sources=src'
+                        sh 'mvn clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.projectKey=examNinja-frontend -Dsonar.sources=src'
                     }
                 }
             }
