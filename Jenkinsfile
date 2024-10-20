@@ -74,16 +74,15 @@ pipeline {
                 }
             }
         }
-        // Optional: Push Docker Images to ECR
-        // stage('Push Docker Images to ECR') {
-        //     steps {
-        //         script {
-        //             sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-        //             sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
-        //             sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
-        //         }
-        //     }
-        // }
+        stage('Push Docker Images to ECR') {
+            steps {
+                script {
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
+                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+                }
+            }
+        }
     }
     post {
         always {
