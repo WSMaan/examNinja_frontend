@@ -8,6 +8,7 @@ pipeline {
         SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
         AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRD4" // Hardcoded AWS Access Key
         AWS_SECRET_ACCESS_KEY = "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" // Hardcoded AWS Secret Key
+        DOCKER_HUB_REPO = "maan96/examninja" // Docker Hub repository
     }
     stages {
         stage('Clone Repositories') {
@@ -49,44 +50,46 @@ pipeline {
                 }
             }
         }
-        // stage('SonarQube Analysis') {
-        //     steps {
-        //         withSonarQubeEnv('SQ1') {
-        //             dir('backend') {
-        //                 sh """
-        //                 mvn clean install
-        //                 mvn org.jacoco:jacoco-maven-plugin:prepare-agent install
-        //                 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
-        //                 -Dsonar.projectKey=examNinja-backend \
-        //                 -Dsonar.sources=src \
-        //                 -Dsonar.java.binaries=target/classes \
-        //                 -Dsonar.exclusions=**/src/test/** \
-        //                 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
         stage('Build Docker Images') {
             steps {
+                // Build backend and frontend Docker images for AWS ECR
                 dir('backend') {
                     sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest ."
                 }
                 dir('frontend') {
                     sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest ."
                 }
+                
+                // Build additional Docker images for Docker Hub
+                dir('backend') {
+                    sh "docker build -t ${DOCKER_HUB_REPO}:backend ."
+                }
+                dir('frontend') {
+                    sh "docker build -t ${DOCKER_HUB_REPO}:frontend ."
+                }
             }
         }
         stage('Push Docker Images to ECR') {
             steps {
                 script {
-                    // Set AWS credentials for the AWS CLI
+                    // Push Docker images to AWS ECR
                     sh "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
                     sh "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-                    
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
                     sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
                     sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+                }
+            }
+        }
+        stage('Push Docker Images to Docker Hub') {
+            steps {
+                script {
+                    // Hardcoded Docker Hub login
+                    sh "docker login -u maan96 -p Superman65"
+                    
+                    // Push Docker images to Docker Hub
+                    sh "docker push ${DOCKER_HUB_REPO}:backend"
+                    sh "docker push ${DOCKER_HUB_REPO}:frontend"
                 }
             }
         }
