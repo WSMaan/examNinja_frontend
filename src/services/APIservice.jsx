@@ -3,7 +3,8 @@ import axios from 'axios';
 const BASE_URL = 'http://localhost:8081';
 const REGISTER_URL = `${BASE_URL}/api/users/register`;
 const LOGIN_URL = `${BASE_URL}/api/users/login`;
-const RESETURL =`${BASE_URL}/api/users/change-password`;
+const RESETURL =`${BASE_URL}/api/users/reset-password`;
+//const CHANGEURL = `${BASE_URL}/api/users/change-password`;
 
 
 export const registerUser = async (userData) => {
@@ -42,10 +43,33 @@ export const resetPassword = async (userdata) => {
           'Content-Type': 'application/json',
         },
       });
-      return response;
+      const data = await response;
+      return data;
     } catch (error) {
       throw error;
     }
+  };
+
+  const changePassword = async (email, oldPassword, newPassword) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/api/users/change-password`, {
+        email,
+        oldPassword,
+        newPassword,
+      });
+      return response.data;
+    } catch (error) {
+      // Throw the error for the calling function to handle
+      if (error.response) {
+        throw new Error(error.response.data.message || 'An unexpected error occurred.');
+      } else {
+        throw new Error('An unexpected error occurred. Please try again.');
+      }
+    }
+  };
+  
+  export default {
+    changePassword,
   };
 
 
