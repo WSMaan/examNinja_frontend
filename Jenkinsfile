@@ -8,7 +8,6 @@ pipeline {
         SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
         AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRD4" // Hardcoded AWS Access Key
         AWS_SECRET_ACCESS_KEY = "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" // Hardcoded AWS Secret Key
-        DOCKER_HUB_REPO = "maan96/examninja" // Docker Hub repository
     }
     stages {
         stage('Clone Repositories') {
@@ -81,18 +80,7 @@ pipeline {
                 }
             }
         }
-        stage('Push Docker Images to Docker Hub') {
-            steps {
-                script {
-                    // Hardcoded Docker Hub login
-                    sh "docker login -u maan96 -p Superman65"
-                    
-                    // Push Docker images to Docker Hub
-                    sh "docker push ${DOCKER_HUB_REPO}:backend"
-                    sh "docker push ${DOCKER_HUB_REPO}:frontend"
-                }
-            }
-        }
+     
     }
     post {
         always {
