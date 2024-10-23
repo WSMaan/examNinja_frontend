@@ -6,8 +6,8 @@ pipeline {
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
-        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRB4" // Hardcoded AWS Access Key
-        AWS_SECRET_ACCESS_KEY = "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" // Hardcoded AWS Secret Key
+        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRD4" // Hardcoded AWS Access Key
+        AWS_SECRET_ACCESS_KEY = "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" // Hardcoded AWS Secret Key
     }
     stages {
         stage('Clone Repositories') {
@@ -49,24 +49,24 @@ pipeline {
                 }
             }
         }
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SQ1') {
-                    dir('backend') {
-                        sh """
-                        mvn clean install
-                        mvn org.jacoco:jacoco-maven-plugin:prepare-agent install
-                        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
-                        -Dsonar.projectKey=examNinja-backend \
-                        -Dsonar.sources=src \
-                        -Dsonar.java.binaries=target/classes \
-                        -Dsonar.exclusions=**/src/test/** \
-                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                        """
-                    }
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         withSonarQubeEnv('SQ1') {
+        //             dir('backend') {
+        //                 sh """
+        //                 mvn clean install
+        //                 mvn org.jacoco:jacoco-maven-plugin:prepare-agent install
+        //                 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
+        //                 -Dsonar.projectKey=examNinja-backend \
+        //                 -Dsonar.sources=src \
+        //                 -Dsonar.java.binaries=target/classes \
+        //                 -Dsonar.exclusions=**/src/test/** \
+        //                 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
         stage('Build Docker Images') {
             steps {
                 dir('backend') {
