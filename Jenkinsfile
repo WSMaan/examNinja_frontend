@@ -70,15 +70,14 @@ pipeline {
                 }
             }
         }
-       stage('Run JMeter Tests') {
-    steps {
-        script {
-            sh 'docker run --rm -v ${WORKSPACE}/backend/basic_test_plan.jmx:/tests/test_plan.jmx -v ${WORKSPACE}/backend/results:/tests/results justb4/jmeter -n -t /tests/test_plan.jmx -l /tests/results/results.jtl'
+        stage('Run JMeter Tests') {
+            steps {
+                script {
+                    // Update the path to the JMeter test plan
+                    sh 'docker run --rm -v ${WORKSPACE}/backend/test_plan.jmx:/tests/test_plan.jmx -v ${WORKSPACE}/backend/results:/tests/results justb4/jmeter -n -t /tests/test_plan.jmx -l /tests/results/results.jtl'
+                }
+            }
         }
-    }
-}
-
-
     }
     post {
         always {
