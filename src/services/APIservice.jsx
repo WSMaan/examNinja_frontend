@@ -4,7 +4,7 @@ const BASE_URL = 'http://localhost:8081';
 const REGISTER_URL = `${BASE_URL}/api/users/register`;
 const LOGIN_URL = `${BASE_URL}/api/users/login`;
 const RESETURL =`${BASE_URL}/api/users/reset-password`;
-//const CHANGEURL = `${BASE_URL}/api/users/change-password`;
+const CHANGEURL = `${BASE_URL}/api/users/change-password`;
 
 
 export const registerUser = async (userData) => {
