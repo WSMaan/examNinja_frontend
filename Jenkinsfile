@@ -51,27 +51,17 @@ pipeline {
         }
         stage('Build Docker Images') {
             steps {
-                // Build backend and frontend Docker images for AWS ECR
                 dir('backend') {
                     sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest ."
                 }
                 dir('frontend') {
                     sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest ."
                 }
-                
-                // Build additional Docker images for Docker Hub
-                dir('backend') {
-                    sh "docker build -t ${DOCKER_HUB_REPO}:backend ."
-                }
-                dir('frontend') {
-                    sh "docker build -t ${DOCKER_HUB_REPO}:frontend ."
-                }
             }
         }
         stage('Push Docker Images to ECR') {
             steps {
                 script {
-                    // Push Docker images to AWS ECR
                     sh "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
                     sh "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
@@ -80,7 +70,14 @@ pipeline {
                 }
             }
         }
-     
+        stage('Run JMeter Tests') {
+            steps {
+                script {
+                    // Run JMeter tests using the Docker image
+                    sh 'docker run --rm -v $(pwd)/jmeter:/tests justb4/jmeter -n -t /tests/test_plan.jmx -l /tests/results.jtl'
+                }
+            }
+        }
     }
     post {
         always {
