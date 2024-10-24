@@ -73,11 +73,11 @@ pipeline {
        stage('Run JMeter Tests') {
     steps {
         script {
-            // Ensure the correct path for the test plan is set
-            sh 'docker run --rm -v ${WORKSPACE}/backend/test_plan.jmx:/tests/test_plan.jmx -v ${WORKSPACE}/backend/results:/tests/results justb4/jmeter -n -t /tests/test_plan.jmx -l /tests/results/results.jtl'
+            sh 'docker run --rm -v ${WORKSPACE}/backend/basic_test_plan.jmx:/tests/test_plan.jmx -v ${WORKSPACE}/backend/results:/tests/results justb4/jmeter -n -t /tests/test_plan.jmx -l /tests/results/results.jtl'
         }
     }
 }
+
 
     }
     post {
