@@ -49,6 +49,16 @@ pipeline {
                 }
             }
         }
+        stage('SonarQube Analysis') {
+            steps {
+                dir('backend') {
+                    sh "mvn sonar:sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-backend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
+                }
+                dir('frontend') {
+                    sh "npm run sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-frontend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
+                }
+            }
+        }
         stage('Build Docker Images') {
             steps {
                 dir('backend') {
@@ -67,14 +77,6 @@ pipeline {
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
                     sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
                     sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
-                }
-            }
-        }
-        stage('Run JMeter Tests') {
-            steps {
-                script {
-                    // Update the path to the JMeter test plan
-                    sh 'docker run --rm -v ${WORKSPACE}/backend/test_plan.jmx:/tests/test_plan.jmx -v ${WORKSPACE}/backend/results:/tests/results justb4/jmeter -n -t /tests/test_plan.jmx -l /tests/results/results.jtl'
                 }
             }
         }
