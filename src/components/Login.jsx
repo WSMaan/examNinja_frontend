@@ -10,7 +10,7 @@ import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import '../styles/Registration.css';
 import  ResetPassword from '../components/ResetPassword.jsx';  // Import ForgotPassword component
-
+import TabsComponent from '../components/Tabs.jsx'; // Import the TabsComponent
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -19,21 +19,28 @@ const validationSchema = Yup.object({
     .required('Email is required'),
   password: Yup.string()
 
+  .test(
+    'no-spaces-only',
+    'Password cannot contain only spaces',
+    (value) => value && value.trim().length > 0
+  )
+  .test(
+    'trimmed-length',
+    'Password must be between 8 and 15 characters',
+    (value) => value && value.trim().length >= 8 && value.trim().length <= 15
+  )
     .min(8, 'Password must be at least 8 characters')
     .max(15, 'Password must not exceed 15 characters')
     .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
     .required('Password is required'),
 });
-
 const LoginPage = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-
- 
-  const navigate=useNavigate();
   const [openModal, setOpenModal] = useState(false);  // State to manage modal visibilit
-
+  const [activeTab, setActiveTab] = useState(0); // State for active tab
+  const navigate=useNavigate();
   const initialValues = {
     email: '',
     password: '',
@@ -72,6 +79,8 @@ const LoginPage = () => {
   };
 
   return (
+    <div className="tab-container">
+      <TabsComponent activeTab={activeTab} setActiveTab={setActiveTab} />
     <Container maxWidth="sm">
       {successMessage && (
         <Stack sx={{ width: '100%', mt: 2 }} spacing={2}>
@@ -169,6 +178,7 @@ const LoginPage = () => {
       </Modal>
 
     </Container>
+    </div>
   );
 };
 
