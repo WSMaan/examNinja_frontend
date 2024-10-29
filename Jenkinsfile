@@ -51,24 +51,16 @@ pipeline {
                 }
             }
         }
-        // stage('SonarQube Analysis') {
-        //     steps {
-        //         withSonarQubeEnv('SQ1') {
-        //             dir('backend') {
-        //                 sh """
-        //                 mvn clean install
-        //                 mvn org.jacoco:jacoco-maven-plugin:prepare-agent install
-        //                 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar \
-        //                 -Dsonar.projectKey=examNinja-backend \
-        //                 -Dsonar.sources=src \
-        //                 -Dsonar.java.binaries=target/classes \
-        //                 -Dsonar.exclusions=**/src/test/** \
-        //                 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
+        stage('SonarQube Analysis') {
+            steps {
+                dir('backend') {
+                    sh "mvn sonar:sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-backend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
+                }
+                dir('frontend') {
+                    sh "npm run sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-frontend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
+                }
+            }
+        }
         stage('Build Docker Images') {
             steps {
                 dir('backend') {
@@ -82,10 +74,8 @@ pipeline {
         stage('Push Docker Images to ECR') {
             steps {
                 script {
-                    // Set AWS credentials for the AWS CLI
                     sh "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
                     sh "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-                    
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
                     sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
                     sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
