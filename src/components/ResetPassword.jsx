@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Alert, Stack } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios'; // Import axios for API calls
+import { resetPassword } from '../services/APIservice.jsx'; // Import the resetPassword function
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -16,26 +16,17 @@ const ResetPassword = ({ onClose }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [generatedPassword, setGeneratedPassword] = useState(null);
 
-  const initialValues = {
-    email: '',
-  };
+  const initialValues = { email: '' };
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post('http://localhost:8081/api/users/reset-password', {
-        email: values.email,
-      });
-
-      if (response && response.status === 200) {
-        setGeneratedPassword(response.data.message); // Assuming the backend returns the new password in the message
-        setErrorMessage(null);
-        //setSuccessMessage('Password has been reset successfully.');
-      }
+      const data = await resetPassword({ email: values.email }); // Call the resetPassword function from apiServices
+      setGeneratedPassword(data.message); // Assuming the backend returns the new password in data.message
+      setErrorMessage(null);
     } catch (error) {
       setGeneratedPassword(null);
       if (error.response?.status === 400) {
-        const errorMessage = error.response.data.message || 'Validation failed';
-        setErrorMessage(errorMessage);
+        setErrorMessage(error.response.data.message || 'Validation failed');
       } else {
         setErrorMessage('An unexpected error occurred. Please try again.');
       }
@@ -80,12 +71,7 @@ const ResetPassword = ({ onClose }) => {
                 helperText={touched.email && errors.email}
                 sx={{ mb: 2 }}
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 2 }}
-              >
+              <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
                 Continue
               </Button>
             </Form>
@@ -94,12 +80,7 @@ const ResetPassword = ({ onClose }) => {
       ) : (
         <Stack sx={{ width: '100%', mb: 2 }} spacing={2}>
           <Alert severity="info">{generatedPassword}</Alert>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={onClose} // Close modal on clicking 'Okay'
-            sx={{ mt: 2 }}
-          >
+          <Button fullWidth variant="contained" onClick={onClose} sx={{ mt: 2 }}>
             Okay
           </Button>
         </Stack>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Alert, Stack } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import apiService from '../services/APIservice'; // Adjust the path as necessary
+import apiService from '../services/APIservice'; // Adjust the path if necessary
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -11,16 +11,16 @@ const validationSchema = Yup.object({
   currentPassword: Yup.string()
     .required('Old password is required'),
   newPassword: Yup.string()
-  .test(
-    'no-spaces-only',
-    'Password cannot contain only spaces',
-    (value) => value && value.trim().length > 0
-)
-.test(
-    'trimmed-length',
-    'Password must be between 8 and 15 characters',
-    (value) => value && value.trim().length >= 8 && value.trim().length <= 15
-)
+    .test(
+      'no-spaces-only',
+      'Password cannot contain only spaces',
+      (value) => value && value.trim().length > 0
+    )
+    .test(
+      'trimmed-length',
+      'Password must be between 8 and 15 characters',
+      (value) => value && value.trim().length >= 8 && value.trim().length <= 15
+    )
     .min(8, 'Password must be at least 8 characters')
     .max(15, 'Password must not exceed 15 characters')
     .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -43,12 +43,12 @@ const ChangePassword = ({ onClose }) => {
   };
 
   const handleSubmit = async (values) => {
-    const { confirmPassword, ...userDetailsWithoutConfirmPassword } = values; // Exclude confirmPassword
+    const { confirmPassword, ...userDetails } = values; // Exclude confirmPassword
     try {
       const response = await apiService.changePassword(
-        userDetailsWithoutConfirmPassword.email,
-        userDetailsWithoutConfirmPassword.currentPassword,
-        userDetailsWithoutConfirmPassword.newPassword
+        userDetails.email,
+        userDetails.currentPassword,
+        userDetails.newPassword
       );
       if (response && response.status === 'success') { 
         setSuccessMessage(response.message);

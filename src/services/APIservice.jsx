@@ -37,39 +37,37 @@ export const loginUser = async (userData) => {
 
 
 export const resetPassword = async (userdata) => {
-    try {
+  try {
       const response = await axios.post(RESETURL, userdata, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+          headers: { 'Content-Type': 'application/json' },
       });
-      const data = await response;
-      return data;
-    } catch (error) {
+      return response.data; // Returning the actual data
+  } catch (error) {
       throw error;
-    }
-  };
+  }
+};
 
-  const changePassword = async (email, oldPassword, newPassword) => {
-    try {
-      const response = await axios.put(`${BASE_URL}/api/users/change-password`, {
-        email,
-        oldPassword,
-        newPassword,
-      });
-      return response.data;
-    } catch (error) {
-      // Throw the error for the calling function to handle
-      if (error.response) {
-        throw new Error(error.response.data.message || 'An unexpected error occurred.');
-      } else {
-        throw new Error('An unexpected error occurred. Please try again.');
-      }
+const changePassword = async (email, oldPassword, newPassword) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/api/users/change-password`, {
+      email,
+      oldPassword,
+      newPassword,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'An unexpected error occurred.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
     }
-  };
-  
+  }
+};
   export default {
     changePassword,
   };
-
 
