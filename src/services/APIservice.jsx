@@ -37,25 +37,17 @@ export const loginUser = async (userData) => {
 
 export const getTestsForUser = async (token) => {
     try {
-        const response = await fetch(`${TESTS_URL}/user`, {
-            method: 'GET',
+        const response = await axios.get(TESTS_URL, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
         });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Network response was not ok');
-        }
-
-        return await response.json();
+        return response.data;
     } catch (error) {
-        console.error('Fetch error:', error);
-        throw new Error('Failed to load tests. Please try again later.');
+        throw new Error(error.response?.data?.message || 'Failed to load tests. Please try again later.');
     }
-};
+  };
 
 export const resetPassword = async (values) => {
     return axios.put('/api/users/change-password', {
