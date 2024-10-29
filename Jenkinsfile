@@ -5,8 +5,9 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMLKSMLRD4" // Hardcoded Access Key ID
-        AWS_SECRET_ACCESS_KEY = "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" // Hardcoded Secret Access Key
+        SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
+        AWS_ACCESS_KEY_ID = "" // Hardcoded AWS Access Key
+        AWS_SECRET_ACCESS_KEY = "" // Hardcoded AWS Secret Key
     }
     stages {
         stage('Clone Repositories') {
@@ -19,7 +20,6 @@ pipeline {
                 }
             }
         }
-
         stage('Build Backend') {
             steps {
                 dir('backend') {
@@ -34,7 +34,6 @@ pipeline {
                 }
             }
         }
-
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
@@ -50,7 +49,16 @@ pipeline {
                 }
             }
         }
-
+        stage('SonarQube Analysis') {
+            steps {
+                dir('backend') {
+                    sh "mvn sonar:sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-backend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
+                }
+                dir('frontend') {
+                    sh "npm run sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-frontend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
+                }
+            }
+        }
         stage('Build Docker Images') {
             steps {
                 dir('backend') {
@@ -61,28 +69,18 @@ pipeline {
                 }
             }
         }
-
         stage('Push Docker Images to ECR') {
             steps {
-                sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-                sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
-                sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+                script {
+                    sh "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+                    sh "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
+                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+                }
             }
         }
-
-        // stage('Deploy to EKS') {
-        //     steps {
-        //         sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
-        //         dir('backend') {
-        //             sh 'kubectl apply -f k8s/backend-deployment.yaml'
-        //         }
-        //         dir('frontend') {
-        //             sh 'kubectl apply -f k8s/frontend-deployment.yaml'
-        //         }
-        //     }
-        // }
     }
-
     post {
         always {
             cleanWs()
@@ -90,27 +88,11 @@ pipeline {
         failure {
             script {
                 echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
-                emailext (
-                    to: 'wsmaan896@gmail.com',
-                    subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                    body: """<h1>Build Failed</h1>
-                              <p>Pipeline failed in the ${env.FAILURE_REASON} stage. Please check the console output at <a href="${env.RUN_DISPLAY_URL}">${env.RUN_DISPLAY_URL}</a>.</p>
-                           """,
-                    mimeType: 'text/html'
-                )
             }
         }
         success {
             script {
                 echo 'Pipeline succeeded!'
-                emailext (
-                    to: 'wsmaan896@gmail.com',
-                    subject: "Build Succeeded: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                    body: """<h1>Build Succeeded</h1>
-                              <p>The pipeline has completed successfully. You can view the results at <a href="${env.RUN_DISPLAY_URL}">${env.RUN_DISPLAY_URL}</a>.</p>
-                           """,
-                    mimeType: 'text/html'
-                )
             }
         }
     }
