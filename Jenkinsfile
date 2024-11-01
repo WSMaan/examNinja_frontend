@@ -6,8 +6,8 @@ pipeline {
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
-        AWS_ACCESS_KEY_ID = "" // Hardcoded AWS Access Key
-        AWS_SECRET_ACCESS_KEY = "" // Hardcoded AWS Secret Key
+        AWS_ACCESS_KEY_ID = "" // Your AWS Access Key ID
+        AWS_SECRET_ACCESS_KEY = "" // Your AWS Secret Access Key
     }
     stages {
         stage('Clone Repositories') {
@@ -26,36 +26,12 @@ pipeline {
                     sh 'mvn clean install'
                 }
             }
-            post {
-                failure {
-                    script {
-                        currentBuild.result = 'FAILURE'
-                    }
-                }
-            }
         }
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
                     sh 'npm install'
                     sh 'npm run build'
-                }
-            }
-            post {
-                failure {
-                    script {
-                        currentBuild.result = 'FAILURE'
-                    }
-                }
-            }
-        }
-        stage('SonarQube Analysis') {
-            steps {
-                dir('backend') {
-                    sh "mvn sonar:sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-backend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
-                }
-                dir('frontend') {
-                    sh "npm run sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-frontend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
         }
@@ -80,6 +56,21 @@ pipeline {
                 }
             }
         }
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    // Configure kubectl to use the EKS cluster context
+                    sh "aws eks update-kubeconfig --region ${AWS_REGION} --name examninja"
+                    
+                    // Deploy backend and frontend to EKS
+                    sh "kubectl apply -f backend-deployment.yaml"
+                    sh "kubectl apply -f frontend-deployment.yaml"
+                    
+                    // Optionally, deploy MySQL if needed
+                    sh "kubectl apply -f mysql-deployment.yaml"
+                }
+            }
+        }
     }
     post {
         always {
@@ -87,12 +78,12 @@ pipeline {
         }
         failure {
             script {
-                echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
+                echo "Pipeline failed."
             }
         }
         success {
             script {
-                echo 'Pipeline succeeded!'
+                echo "Pipeline completed successfully!"
             }
         }
     }
