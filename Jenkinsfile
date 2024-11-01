@@ -7,6 +7,8 @@ pipeline {
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         AWS_ACCESS_KEY_ID = "AKIAYPSFWECMCWWFZS6K" // Your AWS Access Key ID
         AWS_SECRET_ACCESS_KEY = "uiz/zatExnwL3i6rbfO1hqHmYlgKlmCKFnw/yZp6" // Your AWS Secret Access Key
+        BACKEND_DIR = "backend" // Define the backend directory
+        FRONTEND_DIR = "frontend" // Define the frontend directory
     }
     stages {
         stage('Clone Repositories') {
@@ -57,29 +59,22 @@ pipeline {
         }
         stage('Deploy to EKS') {
             steps {
-                script {
-                    // Configure kubectl to use the EKS cluster context
-                    sh "aws eks update-kubeconfig --region ${AWS_REGION} --name examninja"
-                    
-                    // Apply backend deployment from the k8s directory in the backend repository
-                    dir('backend/k8s') {
-                        sh "kubectl apply -f backend-deployment.yaml"
-                    }
-                    
-                    // Apply frontend deployment from the k8s directory in the frontend repository
-                    dir('frontend/k8s') {
-                        sh "kubectl apply -f frontend-deployment.yaml"
-                    }
-                    
-                    // Optionally, deploy MySQL if needed
-                    sh "kubectl apply -f mysql-deployment.yaml"
+                // Ensure kubectl is configured for your EKS cluster
+                sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja'
+                
+                // Apply backend deployment
+                dir(BACKEND_DIR) {
+                    sh 'kubectl apply -f k8s/backend-deployment.yaml' // Ensure your backend deployment file is correctly defined
                 }
+                
+                // Apply frontend deployment
+                dir(FRONTEND_DIR) {
+                    sh 'kubectl apply -f k8s/frontend-deployment.yaml' // Ensure your frontend deployment file is correctly defined
+                }
+                
+                // Apply MySQL deployment
+                sh 'kubectl apply -f mysql-deployment.yaml' // Ensure the path is correct if located in the workspace root
             }
-        }
-    }
-    post {
-        always {
-            cleanWs()
         }
     }
 }
