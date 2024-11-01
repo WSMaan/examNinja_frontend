@@ -61,14 +61,25 @@ pipeline {
                     // Configure kubectl to use the EKS cluster context
                     sh "aws eks update-kubeconfig --region ${AWS_REGION} --name examninja"
                     
-                    // Deploy backend and frontend to EKS
-                    sh "kubectl apply -f backend-deployment.yaml"
-                    sh "kubectl apply -f frontend-deployment.yaml"
+                    // Apply backend deployment from the k8s directory in the backend repository
+                    dir('backend/k8s') {
+                        sh "kubectl apply -f backend-deployment.yaml"
+                    }
+                    
+                    // Apply frontend deployment from the k8s directory in the frontend repository
+                    dir('frontend/k8s') {
+                        sh "kubectl apply -f frontend-deployment.yaml"
+                    }
                     
                     // Optionally, deploy MySQL if needed
                     sh "kubectl apply -f mysql-deployment.yaml"
                 }
             }
+        }
+    }
+    post {
+        always {
+            cleanWs()
         }
     }
 }
