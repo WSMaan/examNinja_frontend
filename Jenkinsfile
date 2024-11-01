@@ -57,19 +57,21 @@ pipeline {
                 }
             }
         }
-      steps {
-    // Configure kubectl for the EKS cluster
-    sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja'
-    
-    // Apply backend deployment
-    dir(BACKEND_DIR) {
-        sh 'kubectl apply -f k8s/backend-deployment.yaml'
-    }
-    
-    // Apply frontend deployment
-    dir(FRONTEND_DIR) {
-        sh 'kubectl apply -f k8s/frontend-deployment.yaml'
-    }
-}
+        stage('Deploy to EKS') {
+            steps {
+                // Configure kubectl for the EKS cluster
+                sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja'
+                
+                // Apply backend deployment
+                dir(BACKEND_DIR) {
+                    sh 'kubectl apply -f k8s/backend-deployment.yaml'
+                }
+                
+                // Apply frontend deployment
+                dir(FRONTEND_DIR) {
+                    sh 'kubectl apply -f k8s/frontend-deployment.yaml'
+                }
+            }
+        }
     }
 }
