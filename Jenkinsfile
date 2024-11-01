@@ -6,8 +6,8 @@ pipeline {
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
-        AWS_ACCESS_KEY_ID = "" // Your AWS Access Key ID
-        AWS_SECRET_ACCESS_KEY = "" // Your AWS Secret Access Key
+        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMNLUQM27D" // Your AWS Access Key ID
+        AWS_SECRET_ACCESS_KEY = "SjlxCCo2RLQ6LksWHx1HCzusZuvK9XNVtxad0VMO" // Your AWS Secret Access Key
     }
     stages {
         stage('Clone Repositories') {
