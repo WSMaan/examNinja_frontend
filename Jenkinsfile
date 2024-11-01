@@ -72,17 +72,4 @@ pipeline {
             }
         }
     }
-    post {
-      
-        failure {
-            script {
-                echo "Pipeline failed."
-            }
-        }
-        success {
-            script {
-                echo "Pipeline completed successfully!"
-            }
-        }
-    }
 }
