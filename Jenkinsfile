@@ -57,27 +57,19 @@ pipeline {
                 }
             }
         }
-       stage('Deploy to EKS') {
-    steps {
-        // Configure kubectl for the EKS cluster
-        sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja'
-        
-        // Apply backend deployment
-        dir(BACKEND_DIR) {
-            sh 'kubectl apply -f k8s/backend-deployment.yaml'
-        }
-        
-        // Apply frontend deployment
-        dir(FRONTEND_DIR) {
-            sh 'kubectl apply -f k8s/frontend-deployment.yaml'
-        }
-        
-        // Apply MySQL deployment from backend/k8s directory
-        dir('backend/k8s') {
-            sh 'kubectl apply -f mysql-deployment.yaml'
-        }
+      steps {
+    // Configure kubectl for the EKS cluster
+    sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja'
+    
+    // Apply backend deployment
+    dir(BACKEND_DIR) {
+        sh 'kubectl apply -f k8s/backend-deployment.yaml'
+    }
+    
+    // Apply frontend deployment
+    dir(FRONTEND_DIR) {
+        sh 'kubectl apply -f k8s/frontend-deployment.yaml'
     }
 }
-
     }
 }
