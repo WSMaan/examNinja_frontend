@@ -1,6 +1,6 @@
 # Installation
 1.	**Clone the repository**
-git clone https://github.com/bhaktiPatel10/EN-Frontend.git
+git clone https://github.com/WSMaan/examNinja_frontend.git
 
 2.	**Install the dependencies** :   Make sure you have Node.js and npm installed.
 run: npm install
