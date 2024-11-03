@@ -5,10 +5,12 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
         AWS_ACCESS_KEY_ID = "AKIAYPSFWECMCWWFZS6K" // Your AWS Access Key ID
         AWS_SECRET_ACCESS_KEY = "uiz/zatExnwL3i6rbfO1hqHmYlgKlmCKFnw/yZp6" // Your AWS Secret Access Key
         BACKEND_DIR = "backend" // Define the backend directory
         FRONTEND_DIR = "frontend" // Define the frontend directory
+
     }
     stages {
         stage('Clone Repositories') {
@@ -57,6 +59,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to EKS') {
             steps {
                 // Configure kubectl for the EKS cluster
@@ -71,6 +74,7 @@ pipeline {
                 dir(FRONTEND_DIR) {
                     sh 'kubectl apply -f k8s/frontend-deployment.yaml'
                 }
+
             }
         }
     }

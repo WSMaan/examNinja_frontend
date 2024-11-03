@@ -8,7 +8,8 @@ import { loginUser } from '../services/APIservice.jsx';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import '../styles/Registration.css';
-import  ResetPassword from '../components/ResetPassword.jsx';  // Import ForgotPassword component
+import ResetPassword from '../components/ResetPassword.jsx';  // Import ResetPassword component
+import ChangePassword from '../components/ChangePassword.jsx';
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -16,6 +17,16 @@ const validationSchema = Yup.object({
     .matches(/@gmail\.com$/, 'Email must be from the domain gmail.com')
     .required('Email is required'),
   password: Yup.string()
+  .test(
+    'no-spaces-only',
+    'Password cannot contain only spaces',
+    (value) => value && value.trim().length > 0
+)
+.test(
+    'trimmed-length',
+    'Password must be between 8 and 15 characters',
+    (value) => value && value.trim().length >= 8 && value.trim().length <= 15
+)
     .min(8, 'Password must be at least 8 characters')
     .max(15, 'Password must not exceed 15 characters')
     .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -26,7 +37,8 @@ const validationSchema = Yup.object({
 const LoginPage = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [openModal, setOpenModal] = useState(false);  // State to manage modal visibility
+  const [openModal, setOpenModal] = useState(false);  // State to manage ResetPassword modal visibility
+  const [openChangePasswordModal, setOpenChangePasswordModal] = useState(false); // State to manage ChangePassword modal
 
   const initialValues = {
     email: '',
@@ -36,23 +48,38 @@ const LoginPage = () => {
   const handleSubmit = async (values) => {
     try {
       const response = await loginUser(values);
-      if (response && response?.status == 200 && response?.data?.status == "success") {
+      if (response && response?.status === 200 && response?.data?.status === 'success') {
         setSuccessMessage('Success! You have logged in successfully');
         setErrorMessage(null);
+        const token = response.data.token;
+        sessionStorage.setItem('token',token),
+        console.log("Token:", token);
+       
+   
       }
     } catch (error) {
-      if (error && error?.status == 404 && error?.response?.data?.message == "User not found") {
-        setSuccessMessage(null);
+      if (error?.status === 404 && error?.response?.data?.message === 'User not found') {
         setErrorMessage('No account associated with this email address. Please check your email or create a new account.');
-      } else if (error && error?.status == 400 && error?.response?.data?.message == "Incorrect password") {
-        setSuccessMessage(null);
-        setErrorMessage('Oops! The password you entered is incorrect. Please try again.');
-      } else {
+      } else if (error?.status === 400) {
+        const errorMessage = error?.response?.data?.message;
+
+        if (errorMessage === "Incorrect password") {
+            setErrorMessage('Oops! The password you entered is incorrect. Please try again.');
+        } 
+        else if (error?.response?.data?.error?.password) {
+            setErrorMessage(error?.response?.data?.error?.password);
+        } 
+        else {
+            setErrorMessage(errorMessage || 'An error occurred. Please try again.');
+        }
+    }
+        else {
         setSuccessMessage(null);
         setErrorMessage('An unexpected error occurred. Please try again later.');
       }
     }
   };
+
 
   return (
     <Container maxWidth="sm">
@@ -69,13 +96,16 @@ const LoginPage = () => {
 
       <Card sx={{ mt: 2 }}>
         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h5" align="left" sx={{ fontWeight: 'bold' }}>Login</Typography>
+          <Typography variant="h5" align="left" sx={{ fontWeight: 'bold' }}>
+            Login
+          </Typography>
           <Typography variant="body2" align="left" sx={{ mt: 1, mb: 2 }}>
-            Doesn't have an account yet?{' '}
-            <Link to="/" variant="body2" style={{ textDecoration: 'none', color: 'primary' }} className='Loginlink'>
+            Don't have an account yet?{' '}
+            <Link to="/register" variant="body2" style={{ textDecoration: 'none', color: 'primary' }} className="Loginlink">
               Register here
             </Link>
           </Typography>
+
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
@@ -112,18 +142,18 @@ const LoginPage = () => {
                       helperText={touched.password && errors.password}
                     />
                   </Grid>
-                  <Typography variant="body2" align="right" >
-                    <Button variant="text" onClick={() => setOpenModal(true)} className='Loginlink'>
+                  <Typography variant="body2" align="right">
+                    <Button variant="text" onClick={() => setOpenModal(true)} className="Loginlink">
                       Forgot Password?
                     </Button>
                   </Typography>
+                  <Typography variant="body2" align="right">
+                    <Button variant="text" onClick={() => setOpenChangePasswordModal(true)} className="Loginlink">
+                      Change Password?
+                    </Button>
+                  </Typography>
                 </Grid>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 3 }}
-                >
+                <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
                   Login
                 </Button>
               </Form>
@@ -135,15 +165,48 @@ const LoginPage = () => {
       {/* Forgot Password Modal */}
       <Modal
         open={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={() => setOpenModal(false)}  // Close modal when 'onClose' is triggered
         aria-labelledby="forgot-password-modal"
         aria-describedby="forgot-password-form"
       >
-        <Box sx={{
-          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: 400, bgcolor: 'background.paper', p: 4, boxShadow: 24, borderRadius: 2,
-        }}>
-          <ResetPassword />  {/* Include ForgotPassword component inside the modal */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            p: 4,
+            boxShadow: 24,
+            borderRadius: 2,
+          }}
+        >
+          <ResetPassword onClose={() => setOpenModal(false)} /> {/* Pass onClose as a prop */}
+        </Box>
+      </Modal>
+
+      {/* Change Password Modal */}
+      <Modal
+        open={openChangePasswordModal}
+        onClose={() => setOpenChangePasswordModal(false)}
+        aria-labelledby="change-password-modal"
+        aria-describedby="change-password-form"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            p: 4,
+            boxShadow: 24,
+            borderRadius: 2,
+          }}
+        >
+          <ChangePassword onClose={() => setOpenChangePasswordModal(false)} /> {/* Pass onClose as a prop */}
         </Box>
       </Modal>
     </Container>

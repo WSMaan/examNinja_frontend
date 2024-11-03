@@ -249,7 +249,7 @@ exports[`RegistrationPage matches snapshot 1`] = `
           Already have an account? 
           <a
             class="Loginlink"
-            href="/login"
+            href="/"
             style="text-decoration: none;"
             variant="body2"
           >
