@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Box, Typography, Card, Modal } from '@mui/material';
-import { Link } from 'react-router-dom';
+
+import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form } from 'formik';
 import Grid from '@mui/material/Grid2';
 import * as Yup from 'yup';
@@ -8,8 +9,10 @@ import { loginUser } from '../services/APIservice.jsx';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import '../styles/Registration.css';
+import TabsComponent from '../components/Tabs.jsx'; // Import the TabsComponent
 import ResetPassword from '../components/ResetPassword.jsx';  // Import ResetPassword component
 import ChangePassword from '../components/ChangePassword.jsx';
+
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -17,6 +20,7 @@ const validationSchema = Yup.object({
     .matches(/@gmail\.com$/, 'Email must be from the domain gmail.com')
     .required('Email is required'),
   password: Yup.string()
+
   .test(
     'no-spaces-only',
     'Password cannot contain only spaces',
@@ -33,34 +37,40 @@ const validationSchema = Yup.object({
     .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
     .required('Password is required'),
 });
-
 const LoginPage = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [activeTab, setActiveTab] = useState(0); // State for active tab
+  const navigate=useNavigate();
   const [openModal, setOpenModal] = useState(false);  // State to manage ResetPassword modal visibility
   const [openChangePasswordModal, setOpenChangePasswordModal] = useState(false); // State to manage ChangePassword modal
+
 
   const initialValues = {
     email: '',
     password: '',
   };
-
+  // const userId = response.data.userId;
+   // sessionStorage.setItem('userId', userId);
+   // console.log("Fetching tests for userId:", userId);
   const handleSubmit = async (values) => {
     try {
       const response = await loginUser(values);
+
       if (response && response?.status === 200 && response?.data?.status === 'success') {
+
         setSuccessMessage('Success! You have logged in successfully');
         setErrorMessage(null);
         const token = response.data.token;
         sessionStorage.setItem('token',token),
         console.log("Token:", token);
-       
-   
+        navigate('/Quest');
       }
     } catch (error) {
       if (error?.status === 404 && error?.response?.data?.message === 'User not found') {
         setErrorMessage('No account associated with this email address. Please check your email or create a new account.');
-      } else if (error?.status === 400) {
+      }
+      else if (error?.status === 400) {
         const errorMessage = error?.response?.data?.message;
 
         if (errorMessage === "Incorrect password") {
@@ -82,6 +92,8 @@ const LoginPage = () => {
 
 
   return (
+    <div className="tab-container">
+      <TabsComponent activeTab={activeTab} setActiveTab={setActiveTab} />
     <Container maxWidth="sm">
       {successMessage && (
         <Stack sx={{ width: '100%', mt: 2 }} spacing={2}>
@@ -142,6 +154,7 @@ const LoginPage = () => {
                       helperText={touched.password && errors.password}
                     />
                   </Grid>
+
                   <Typography variant="body2" align="right">
                     <Button variant="text" onClick={() => setOpenModal(true)} className="Loginlink">
                       Forgot Password?
@@ -161,6 +174,7 @@ const LoginPage = () => {
           </Formik>
         </Box>
       </Card>
+
 
       {/* Forgot Password Modal */}
       <Modal
@@ -209,7 +223,9 @@ const LoginPage = () => {
           <ChangePassword onClose={() => setOpenChangePasswordModal(false)} /> {/* Pass onClose as a prop */}
         </Box>
       </Modal>
+
     </Container>
+    </div>
   );
 };
 

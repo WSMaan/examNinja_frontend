@@ -3,8 +3,10 @@ import axios from 'axios';
 const BASE_URL = 'http://localhost:8081';
 const REGISTER_URL = `${BASE_URL}/api/users/register`;
 const LOGIN_URL = `${BASE_URL}/api/users/login`;
+const TESTS_URL = `${BASE_URL}/api/tests/user`;
 const RESETURL =`${BASE_URL}/api/users/reset-password`;
 const CHANGEURL = `${BASE_URL}/api/users/change-password`;
+
 
 
 export const registerUser = async (userData) => {
@@ -20,6 +22,7 @@ export const registerUser = async (userData) => {
         throw error;
     }
 };
+
 export const loginUser = async (userData) => {
     try {
         const response = axios.post(LOGIN_URL, userData, {
@@ -34,6 +37,22 @@ export const loginUser = async (userData) => {
     }
 };
 
+
+
+
+export const getTestsForUser = async (token) => {
+    try {
+        const response = await axios.get(TESTS_URL, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to load tests. Please try again later.');
+    }
+  };
 
 
 export const resetPassword = async (userdata) => {
