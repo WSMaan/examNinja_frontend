@@ -4,7 +4,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import RegistrationPage from './components/Registration.jsx';
 import LoginPage from './components/Login.jsx';
-import ResetPassword from '../src/components/ResetPassword.jsx'
+import ResetPassword from './components/ResetPassword.jsx'
 
 import CertificationScreen from './components/Quest.jsx';
 

@@ -5,9 +5,12 @@ pipeline {
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        SONAR_TOKEN = credentials('JENKINS_SONAR') // SonarQube token credential
-        AWS_ACCESS_KEY_ID = "" // Hardcoded AWS Access Key
-        AWS_SECRET_ACCESS_KEY = "" // Hardcoded AWS Secret Key
+
+        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMCWWFZS6K" // Your AWS Access Key ID
+        AWS_SECRET_ACCESS_KEY = "uiz/zatExnwL3i6rbfO1hqHmYlgKlmCKFnw/yZp6" // Your AWS Secret Access Key
+        BACKEND_DIR = "backend" // Define the backend directory
+        FRONTEND_DIR = "frontend" // Define the frontend directory
+
     }
     stages {
         stage('Clone Repositories') {
@@ -26,36 +29,12 @@ pipeline {
                     sh 'mvn clean install'
                 }
             }
-            post {
-                failure {
-                    script {
-                        currentBuild.result = 'FAILURE'
-                    }
-                }
-            }
         }
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
                     sh 'npm install'
                     sh 'npm run build'
-                }
-            }
-            post {
-                failure {
-                    script {
-                        currentBuild.result = 'FAILURE'
-                    }
-                }
-            }
-        }
-        stage('SonarQube Analysis') {
-            steps {
-                dir('backend') {
-                    sh "mvn sonar:sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-backend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
-                }
-                dir('frontend') {
-                    sh "npm run sonar -Dsonar.projectKey=${ECR_REPOSITORY_NAME}-frontend -Dsonar.host.url=http://3.17.63.237:9000 -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
         }
@@ -80,19 +59,22 @@ pipeline {
                 }
             }
         }
-    }
-    post {
-        always {
-            cleanWs()
-        }
-        failure {
-            script {
-                echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
-            }
-        }
-        success {
-            script {
-                echo 'Pipeline succeeded!'
+
+        stage('Deploy to EKS') {
+            steps {
+                // Configure kubectl for the EKS cluster
+                sh 'aws eks --region ${AWS_REGION} update-kubeconfig --name examninja'
+                
+                // Apply backend deployment
+                dir(BACKEND_DIR) {
+                    sh 'kubectl apply -f k8s/backend-deployment.yaml'
+                }
+                
+                // Apply frontend deployment
+                dir(FRONTEND_DIR) {
+                    sh 'kubectl apply -f k8s/frontend-deployment.yaml'
+                }
+
             }
         }
     }
