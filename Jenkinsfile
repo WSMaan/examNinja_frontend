@@ -6,8 +6,8 @@ pipeline {
         ECR_REPOSITORY_NAME = "examninja"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-        AWS_ACCESS_KEY_ID = "AKIAYPSFWECMCWWFZS6K" // Your AWS Access Key ID
-        AWS_SECRET_ACCESS_KEY = "uiz/zatExnwL3i6rbfO1hqHmYlgKlmCKFnw/yZp6" // Your AWS Secret Access Key
+        AWS_ACCESS_KEY_ID = "" // Your AWS Access Key ID
+        AWS_SECRET_ACCESS_KEY = "u" // Your AWS Secret Access Key
         BACKEND_DIR = "backend" // Define the backend directory
         FRONTEND_DIR = "frontend" // Define the frontend directory
 
