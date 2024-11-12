@@ -66,16 +66,10 @@ pipeline {
                     // Configure kubectl for the EKS cluster
                     sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
                     
-                    // Deploy backend and frontend to EKS
+                    // Deploy backend, frontend, and MySQL to EKS
                     dir(BACKEND_DIR) {
                         sh 'kubectl apply -f k8s/backend-deployment.yaml'
-                    }
-                    dir(FRONTEND_DIR) {
                         sh 'kubectl apply -f k8s/frontend-deployment.yaml'
-                    }
-                    
-                    // Deploy MySQL database
-                    dir('mysql') {
                         sh 'kubectl apply -f k8s/mysql-deployment.yaml'
                     }
                 }
