@@ -66,7 +66,7 @@ pipeline {
                     // Configure kubectl for the EKS cluster
                     sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
                     
-                    // Deploy backend to EKS
+                    // Deploy backend and MySQL to EKS
                     dir(BACKEND_DIR) {
                         sh 'kubectl apply -f k8s/backend-deployment.yaml'
                         sh 'kubectl apply -f k8s/mysql-deployment.yaml'
@@ -79,23 +79,5 @@ pipeline {
                 }
             }
         }
-     stage('Populate MySQL Database') {
-    steps {
-        script {
-            // Verify that the init_data.sql file exists
-            sh 'ls -l backend/init_data.sql'
-            
-            // Wait for MySQL pod readiness and populate the database
-            sh 'kubectl wait --for=condition=ready pod -l app=mysql --timeout=120s'
-            sh '''
-            MYSQL_POD=$(kubectl get pods -l app=mysql -o jsonpath="{.items[0].metadata.name}")
-            kubectl cp ${WORKSPACE}/backend/init_data.sql $MYSQL_POD:/tmp/init_data.sql
-            kubectl exec -i $MYSQL_POD -- mysql -uroot -proot exam_ninja < /tmp/init_data.sql
-            '''
-        }
-    }
-}
-
-
     }
 }
