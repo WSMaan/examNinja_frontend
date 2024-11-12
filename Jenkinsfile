@@ -79,18 +79,19 @@ pipeline {
                 }
             }
         }
-        stage('Populate MySQL Database') {
-            steps {
-                script {
-                    // Wait for MySQL pod readiness and populate the database
-                    sh 'kubectl wait --for=condition=ready pod -l app=mysql --timeout=120s'
-                    sh '''
-                    MYSQL_POD=$(kubectl get pods -l app=mysql -o jsonpath="{.items[0].metadata.name}")
-                    kubectl cp ${BACKEND_DIR}/scripts/init_data.sql $MYSQL_POD:/tmp/init_data.sql
-                    kubectl exec -i $MYSQL_POD -- mysql -uroot -proot exam_ninja < /tmp/init_data.sql
-                    '''
-                }
-            }
+      stage('Populate MySQL Database') {
+    steps {
+        script {
+            // Wait for MySQL pod readiness and populate the database
+            sh 'kubectl wait --for=condition=ready pod -l app=mysql --timeout=120s'
+            sh '''
+            MYSQL_POD=$(kubectl get pods -l app=mysql -o jsonpath="{.items[0].metadata.name}")
+            kubectl cp backend/init_data.sql $MYSQL_POD:/tmp/init_data.sql
+            kubectl exec -i $MYSQL_POD -- mysql -uroot -proot exam_ninja < /tmp/init_data.sql
+            '''
         }
+    }
+}
+
     }
 }
