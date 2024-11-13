@@ -1,74 +1,84 @@
-import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import axios from 'axios';
-import { act } from 'react';
-import CertificationScreen from '../components/Quest.jsx'; // Adjust the import based on your file structure
+// CertificationScreen.test.jsx
 
-// Mock the axios module
-jest.mock('axios');
+// Suppress console.log and console.error for cleaner test output
+jest.spyOn(console, 'log').mockImplementation(() => {});
+jest.spyOn(console, 'error').mockImplementation(() => {});
+
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import CertificationScreen from '../components/Quest.jsx';
+import { BrowserRouter } from 'react-router-dom';
+import { getTestsForUser } from '../services/ExamService';
+
+// Mock the getTestsForUser function
+jest.mock('../services/ExamService', () => ({
+  getTestsForUser: jest.fn(),
+}));
 
 describe('CertificationScreen', () => {
+  const renderComponent = () =>
+    render(
+      <BrowserRouter>
+        <CertificationScreen />
+      </BrowserRouter>
+    );
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('displays error message if user is not authenticated', async () => {
+    sessionStorage.removeItem('token'); // Simulate no token in session
+    renderComponent();
+    await waitFor(() => expect(screen.getByText('User is not authenticated.')).toBeInTheDocument());
+  });
+
+  it('displays error message if fetching tests fails', async () => {
+    sessionStorage.setItem('token', 'test-token'); // Set a valid token
+    getTestsForUser.mockRejectedValue(new Error('Failed to load tests:'));
+
+    renderComponent();
+
+    await waitFor(() =>
+      expect(screen.getByText('Failed to load tests. Please try again later.')).toBeInTheDocument()
+    );
+  });
+
+  it('displays tests when fetched successfully', async () => {
+    sessionStorage.setItem('token', 'test-token'); // Set a valid token
     const mockTests = [
-        { testId: 1, testName: 'Click here to start the Test Name - 50 Questions', numberOfQuestions: 50 },
-        { testId: 2, testName: 'Another Test - 60 Questions', numberOfQuestions: 60 }
+      { testId: 1, testName: 'Java Test 1', numberOfQuestions: 10 },
+      { testId: 2, testName: 'Java Test 2', numberOfQuestions: 15 },
     ];
+    getTestsForUser.mockResolvedValue(mockTests);
 
-    // Mock sessionStorage to provide a token before all tests
-    beforeAll(() => {
-        sessionStorage.setItem('token', 'mockedToken');
+    renderComponent();
+
+    await waitFor(() => expect(screen.queryByText('Loading tests...')).not.toBeInTheDocument());
+
+    mockTests.forEach((test) => {
+      expect(
+        screen.getByText(`Click here to start the ${test.testName} - ${test.numberOfQuestions} Questions`)
+      ).toBeInTheDocument();
     });
+  });
 
-    beforeEach(() => {
-        axios.get.mockResolvedValue({ data: mockTests });
-    });
+  it('navigates to test screen when a test is clicked', async () => {
+    sessionStorage.setItem('token', 'test-token'); // Set a valid token
+    const mockTests = [
+      { testId: 1, testName: 'Java Test 1', numberOfQuestions: 10 },
+    ];
+    getTestsForUser.mockResolvedValue(mockTests);
 
-    test('renders the loading state initially', () => {
-        render(
-            <Router>
-                <CertificationScreen />
-            </Router>
-        );
-        expect(screen.getByText(/loading tests.../i)).toBeInTheDocument();
-    });
+    const { container } = renderComponent();
 
-    test('displays fetched tests after loading', async () => {
-        await act(async () => {
-            render(
-                <Router>
-                    <CertificationScreen />
-                </Router>
-            );
-        });
+    await waitFor(() =>
+      expect(screen.queryByText('Loading tests...')).not.toBeInTheDocument()
+    );
 
-        await waitFor(() => {
-            expect(screen.getByText(/click here to start the test name - 50 questions/i)).toBeInTheDocument();
-            expect(screen.getByText(/another test - 60 questions/i)).toBeInTheDocument();
-        });
-    });
+    fireEvent.click(container.querySelector('.test-table'));
 
-    test('handles error state', async () => {
-        axios.get.mockRejectedValue(new Error('Failed to load tests.'));
-
-        await act(async () => {
-            render(
-                <Router>
-                    <CertificationScreen />
-                </Router>
-            );
-        });
-
-        await waitFor(() => {
-            expect(screen.getByText(/failed to load tests/i)).toBeInTheDocument();
-        });
-    });
-
-    test('matches snapshot', () => {
-        const { asFragment } = render(
-            <Router>
-                <CertificationScreen />
-            </Router>
-        );
-        expect(asFragment()).toMatchSnapshot();
-    });
+    expect(window.location.pathname).toBe(`/tests/${mockTests[0].testId}`);
+  });
 });

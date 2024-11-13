@@ -12,7 +12,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import TabsComponent from './Tabs.jsx';
 import '../styles/Quest.css'; // Import the CSS file
-import { getTestsForUser } from '../services/APIservice.jsx';
+import { getTestsForUser } from '../services/ExamService.jsx';
 
 const CertificationScreen = () => {
   const navigate = useNavigate();

@@ -17,7 +17,7 @@ import ChangePassword from '../components/ChangePassword.jsx';
 const validationSchema = Yup.object({
   email: Yup.string()
     .email('Enter a valid email address')
-    .matches(/@gmail\.com$/, 'Email must be from the domain gmail.com')
+    .matches(/@.*\.com$/, 'Email must contain "@" and end with ".com"')
     .required('Email is required'),
   password: Yup.string()
 
@@ -50,9 +50,7 @@ const LoginPage = () => {
     email: '',
     password: '',
   };
-  // const userId = response.data.userId;
-   // sessionStorage.setItem('userId', userId);
-   // console.log("Fetching tests for userId:", userId);
+  
   const handleSubmit = async (values) => {
     try {
       const response = await loginUser(values);
@@ -68,6 +66,7 @@ const LoginPage = () => {
       }
     } catch (error) {
       if (error?.status === 404 && error?.response?.data?.message === 'User not found') {
+        setSuccessMessage(null);
         setErrorMessage('No account associated with this email address. Please check your email or create a new account.');
       }
       else if (error?.status === 400) {

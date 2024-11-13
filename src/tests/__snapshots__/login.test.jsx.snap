@@ -1,0 +1,249 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoginPage matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="tab-container"
+  >
+    <div
+      class="MuiBox-root css-0"
+    >
+      <p
+        class="MuiTypography-root MuiTypography-body1 tab-title css-xhm7gi-MuiTypography-root"
+      >
+        ExamNinja Test Studio
+      </p>
+      <div
+        class="MuiTabs-root css-ijz6m-MuiTabs-root"
+      >
+        <div
+          class="MuiTabs-scrollableX MuiTabs-hideScrollbar css-oqr85h"
+          style="width: 99px; height: 99px; position: absolute; top: -9999px; overflow: scroll;"
+        />
+        <div
+          class="MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-1hiyfpk-MuiTabs-scroller"
+          style="margin-bottom: 0px;"
+        >
+          <div
+            aria-label="Navigation Tabs"
+            class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+            role="tablist"
+          >
+            <button
+              aria-selected="false"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              role="tab"
+              tabindex="-1"
+              type="button"
+            >
+              Home
+            </button>
+            <button
+              aria-selected="true"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              role="tab"
+              tabindex="0"
+              type="button"
+            >
+              Certifications
+            </button>
+            <button
+              aria-selected="false"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              role="tab"
+              tabindex="-1"
+              type="button"
+            >
+              Test
+            </button>
+            <button
+              aria-selected="false"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              role="tab"
+              tabindex="-1"
+              type="button"
+            >
+              Review
+            </button>
+            <button
+              aria-selected="false"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              role="tab"
+              tabindex="-1"
+              type="button"
+            >
+              Progress
+            </button>
+            <button
+              aria-selected="false"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              role="tab"
+              tabindex="-1"
+              type="button"
+            >
+              Status
+            </button>
+          </div>
+          <span
+            class="MuiTabs-indicator css-1sj2jcg-MuiTabs-indicator"
+            style="left: 0px; width: 0px;"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="MuiContainer-root MuiContainer-maxWidthSm css-zzzaw2-MuiContainer-root"
+    >
+      <div
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root css-gn0i82-MuiPaper-root-MuiCard-root"
+        style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
+      >
+        <div
+          class="MuiBox-root css-1siwe0b"
+        >
+          <h5
+            class="MuiTypography-root MuiTypography-h5 MuiTypography-alignLeft css-1fi53gm-MuiTypography-root"
+            style="--Typography-textAlign: left;"
+          >
+            Login
+          </h5>
+          <p
+            class="MuiTypography-root MuiTypography-body2 MuiTypography-alignLeft css-1v15ure-MuiTypography-root"
+            style="--Typography-textAlign: left;"
+          >
+            Don't have an account yet? 
+            <a
+              class="Loginlink"
+              href="/register"
+              style="text-decoration: none;"
+              variant="body2"
+            >
+              Register here
+            </a>
+          </p>
+          <form
+            action="#"
+            style="width: 100%;"
+          >
+            <div
+              class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-2 css-12ng94v-MuiGrid2-root"
+            >
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 css-5glywb-MuiGrid2-root"
+              >
+                <div
+                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
+                >
+                  <label
+                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1q964xs-MuiFormLabel-root-MuiInputLabel-root"
+                    data-shrink="false"
+                    for=":r8:"
+                    id=":r8:-label"
+                  >
+                    Email Address
+                  </label>
+                  <div
+                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
+                  >
+                    <input
+                      aria-invalid="false"
+                      class="MuiInputBase-input MuiOutlinedInput-input css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
+                      id=":r8:"
+                      name="email"
+                      type="text"
+                      value=""
+                    />
+                    <fieldset
+                      aria-hidden="true"
+                      class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                    >
+                      <legend
+                        class="css-1pbc52w"
+                      >
+                        <span>
+                          Email Address
+                        </span>
+                      </legend>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 css-5glywb-MuiGrid2-root"
+              >
+                <div
+                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
+                >
+                  <label
+                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1q964xs-MuiFormLabel-root-MuiInputLabel-root"
+                    data-shrink="false"
+                    for="pwd"
+                    id="pwd-label"
+                  >
+                    Password
+                  </label>
+                  <div
+                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
+                  >
+                    <input
+                      aria-invalid="false"
+                      class="MuiInputBase-input MuiOutlinedInput-input css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
+                      id="pwd"
+                      name="password"
+                      type="password"
+                      value=""
+                    />
+                    <fieldset
+                      aria-hidden="true"
+                      class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                    >
+                      <legend
+                        class="css-1pbc52w"
+                      >
+                        <span>
+                          Password
+                        </span>
+                      </legend>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+              <p
+                class="MuiTypography-root MuiTypography-body2 MuiTypography-alignRight css-1i3xfxt-MuiTypography-root"
+                style="--Typography-textAlign: right;"
+              >
+                <button
+                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Loginlink css-1apkmlw-MuiButtonBase-root-MuiButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  Forgot Password?
+                </button>
+              </p>
+              <p
+                class="MuiTypography-root MuiTypography-body2 MuiTypography-alignRight css-1i3xfxt-MuiTypography-root"
+                style="--Typography-textAlign: right;"
+              >
+                <button
+                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Loginlink css-1apkmlw-MuiButtonBase-root-MuiButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  Change Password?
+                </button>
+              </p>
+            </div>
+            <button
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-6ufqiw-MuiButtonBase-root-MuiButton-root"
+              tabindex="0"
+              type="submit"
+            >
+              Login
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
