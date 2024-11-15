@@ -4,6 +4,7 @@ import axios from 'axios';
 const BASE_URL = 'http://localhost:8081';
 const TESTS_URL = `${BASE_URL}/api/tests/user`;
 const EXAM_URL = `${BASE_URL}/api/tests`;
+const SUBMIT_URL = `${EXAM_URL}/submit`;
 
 
 export const getTestsForUser = async (token) => {
@@ -36,11 +37,11 @@ export const getQuestionsForTest = async (testId, page, token) => {
 };
 
 // Function to save the selected answer for a specific question
-export const saveAnswer = async (questionId, testId, selectedOption, token) => {
+export const saveAnswer = async (questionId, testId, selectedAnswer, token) => {
   const payload = {
     questionId: questionId,
     testId: testId,
-    selectedOption: selectedOption,
+    selectedOption: selectedAnswer,
   };
 
   try {
@@ -62,10 +63,29 @@ export const saveAnswer = async (questionId, testId, selectedOption, token) => {
   }
 };
 
+export const submitTest = async(testId, dateTime, token) =>{
+ 
+  const payload = { 
+    testId:testId, 
+    submissionDateTime:dateTime 
+  }
+
+  try {
+    const response = await axios.post(SUBMIT_URL, payload, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json' 
+      },
+    });
+    return response.data; // Return the response data if needed
+  } catch (error) {
+    throw new Error(error.response?.data?.message  || 'Failed to submit test.');
+  }
+};
+
 // Exporting the functions
 export default {
   getQuestionsForTest,
   saveAnswer,
+  submitTest
 };
-
-
