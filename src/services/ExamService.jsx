@@ -36,11 +36,11 @@ export const getQuestionsForTest = async (testId, page, token) => {
 };
 
 // Function to save the selected answer for a specific question
-export const saveAnswer = async (questionId, testId, selectedOption, token) => {
+export const saveAnswer = async (questionId, testId, selectedAnswer, token) => {
   const payload = {
     questionId: questionId,
     testId: testId,
-    selectedOption: selectedOption,
+    selectedOption: selectedAnswer,
   };
 
   try {
