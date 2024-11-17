@@ -8,7 +8,7 @@ pipeline {
 
         BACKEND_DIR = "backend"
         FRONTEND_DIR = "frontend"
-        ECS_CLUSTER = "examninja"
+        ECS_CLUSTER = "Examninja"
     }
     stages {
         stage('Setup AWS Credentials') {
