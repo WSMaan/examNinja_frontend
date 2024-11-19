@@ -208,7 +208,7 @@ const TestScreen = () => {
  
   return (
     <div className="tab-container">
-      <TabsComponent activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabsComponent activeTab={activeTab} setActiveTab={setActiveTab} isTestSubmitted={isTestSubmitted} />
 
       {/* Scrollable container */}
       <Box

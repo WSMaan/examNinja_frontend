@@ -4,27 +4,32 @@ import React from 'react';
 import { Tabs, Tab, Typography, Box } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const TabsComponent = ({ activeTab, setActiveTab }) => {
+const TabsComponent = ({ activeTab, setActiveTab, isTestSubmitted }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Set active tab based on the current location
-  React.useEffect(() => {
-    if (location.pathname === '/Quest') {
-      setActiveTab(1);
-    } else if (location.pathname === '/') {
-      setActiveTab(0);
-    }
-  }, [location.pathname, setActiveTab]);
+  // Define each tab separately
+  const tabs = [
+    { label: 'Home', path: '/', unclickable: false },
+    { label: 'Certifications', path: '/Quest', unclickable: !isTestSubmitted },
+    { label: 'Test', path: '/tests/:testId', unclickable: false }, // Adjust dynamically based on test status
+    { label: 'Review', path: '/Review', unclickable: false },
+    { label: 'Progress', path: '/Progress', unclickable: false },
+    { label: 'Status', path: '/Status', unclickable: false }
+  ];
 
-  // Tab change handler for navigation
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-    if (newValue === 0) {
-      navigate('/');
-    } else if (newValue === 1) {
-      navigate('/Quest');
+  // Update the active tab based on the current location (URL)
+  React.useEffect(() => {
+    const currentTabIndex = tabs.findIndex(tab => tab.path === location.pathname);
+    if (currentTabIndex !== -1) {
+      setActiveTab(currentTabIndex);
     }
+  }, [location.pathname, setActiveTab, tabs]);
+
+  const handleTabChange = (event, newValue) => {
+    if (tabs[newValue].unclickable) return; // Prevent navigation if tab is "unclickable"
+    setActiveTab(newValue);
+    navigate(tabs[newValue].path); // Navigate to the appropriate path
   };
 
   return (
@@ -53,10 +58,11 @@ const TabsComponent = ({ activeTab, setActiveTab }) => {
         indicatorColor="primary"
         sx={{ borderBottom: '1px solid #ccc' }}
       >
-        {['Home', 'Certifications', 'Test', 'Review', 'Progress', 'Status'].map((tabLabel, index) => (
+        {/* Render each tab individually with specific conditions */}
+        {tabs.map((tab, index) => (
           <Tab
             key={index}
-            label={tabLabel}
+            label={tab.label}
             sx={{
               padding: '10px',
               cursor: 'pointer',
@@ -73,6 +79,9 @@ const TabsComponent = ({ activeTab, setActiveTab }) => {
               '&:hover': {
                 backgroundColor: '#f3140e',
               },
+              // If the tab is unclickable, apply pointer-events: none
+              pointerEvents: tab.unclickable ? 'none' : 'auto', // Disables interaction but keeps style
+              opacity: tab.unclickable ? 0.5 : 1, // Optional: Reduce opacity for unclickable tabs
             }}
           />
         ))}
