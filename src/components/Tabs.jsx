@@ -4,19 +4,21 @@ import React from 'react';
 import { Tabs, Tab, Typography, Box } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const TabsComponent = ({ activeTab, setActiveTab, isTestSubmitted }) => {
+const TabsComponent = ({ activeTab, setActiveTab,isLoggedIn, isTestSubmitted }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   // Define each tab separately
   const tabs = [
-    { label: 'Home', path: '/', unclickable: false },
-    { label: 'Certifications', path: '/Quest', unclickable: !isTestSubmitted },
-    { label: 'Test', path: '/tests/:testId', unclickable: false }, // Adjust dynamically based on test status
-    { label: 'Review', path: '/Review', unclickable: false },
-    { label: 'Progress', path: '/Progress', unclickable: false },
-    { label: 'Status', path: '/Status', unclickable: false }
+    { label: 'Home', path: '/', unclickable: !isLoggedIn   },
+    { label: 'Certifications', path: '/Quest', unclickable: activeTab === 2  },
+    { label: 'Test', path: '/tests/:testId', unclickable: false }, // Test tab remains clickable
+    // { label: 'Review', path: '/', unclickable: !isTestSubmitted },
+    { label: 'Review', path: '', unclickable: activeTab === 2  },
+    { label: 'Progress', path: '', unclickable: activeTab === 2  },
+    { label: 'Status', path: '', unclickable: activeTab === 2  }
   ];
+
 
   // Update the active tab based on the current location (URL)
   React.useEffect(() => {
