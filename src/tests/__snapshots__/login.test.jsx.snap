@@ -31,7 +31,7 @@ exports[`LoginPage matches snapshot 1`] = `
           >
             <button
               aria-selected="false"
-              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-12bhhmj-MuiButtonBase-root-MuiTab-root"
               role="tab"
               tabindex="-1"
               type="button"
@@ -40,7 +40,7 @@ exports[`LoginPage matches snapshot 1`] = `
             </button>
             <button
               aria-selected="true"
-              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected css-9k1byb-MuiButtonBase-root-MuiTab-root"
               role="tab"
               tabindex="0"
               type="button"
@@ -49,7 +49,7 @@ exports[`LoginPage matches snapshot 1`] = `
             </button>
             <button
               aria-selected="false"
-              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-12bhhmj-MuiButtonBase-root-MuiTab-root"
               role="tab"
               tabindex="-1"
               type="button"
@@ -58,7 +58,7 @@ exports[`LoginPage matches snapshot 1`] = `
             </button>
             <button
               aria-selected="false"
-              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-12bhhmj-MuiButtonBase-root-MuiTab-root"
               role="tab"
               tabindex="-1"
               type="button"
@@ -67,7 +67,7 @@ exports[`LoginPage matches snapshot 1`] = `
             </button>
             <button
               aria-selected="false"
-              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-12bhhmj-MuiButtonBase-root-MuiTab-root"
               role="tab"
               tabindex="-1"
               type="button"
@@ -76,7 +76,7 @@ exports[`LoginPage matches snapshot 1`] = `
             </button>
             <button
               aria-selected="false"
-              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-1pe4ln8-MuiButtonBase-root-MuiTab-root"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit css-12bhhmj-MuiButtonBase-root-MuiTab-root"
               role="tab"
               tabindex="-1"
               type="button"

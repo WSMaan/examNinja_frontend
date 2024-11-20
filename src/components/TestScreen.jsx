@@ -12,11 +12,18 @@ const TestScreen = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageDetails, setPageDetails] = useState(null);
+
+
   const [selectedAnswer, setSelectedAnswer] = useState({ value: '', label: '' });
+
+
+
+
   const [marked, setMarked] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0); // Timer in seconds
   const [activeTab, setActiveTab] = useState(2); // State to manage active tab
   const [testName, setTestName] = useState(''); // New state for test name
+
   const [score, setScore] = useState(null);
   const [status, setStatus] = useState('');
   const [popupOpen, setPopupOpen] = useState(false);
@@ -25,29 +32,35 @@ const TestScreen = () => {
   const [answers, setAnswers] = useState({}); // Store answers by question ID
 
 
+
   const currentDate = new Date();
   const formattedDate = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD
   const formattedTime = currentDate.toLocaleTimeString('en-GB', { hour: '2-digit', 
     minute: '2-digit', 
     hour12: false  }); 
-    useEffect(() => {
+
+
+
+  useEffect(() => {
       const fetchQuestions = async (page) => {
         setLoading(true);
         setError(null);
-  
+    
         const token = sessionStorage.getItem('token');
+        console.log(`Token: ${token}`);
+
         if (!token) {
           setLoading(false);
           setError('User is not authenticated.');
           return;
         }
-  
+
         try {
           const data = await ExamServices.getQuestionsForTest(testId, page, token);
           setTestName(data.testName);
           setQuestions(data.questions);
           setPageDetails(data.pageDetails);
-  
+
           // Check if an answer exists for this question in `answers`, otherwise set from API data
           const questionId = data.questions[0]?.questionId;
           const savedAnswer = answers[questionId];
@@ -63,7 +76,7 @@ const TestScreen = () => {
           } else {
             setSelectedAnswer({ value: '', label: '' });
           }
-  
+
           setMarked(false);
         } catch (error) {
           setError(error.message);
@@ -71,10 +84,12 @@ const TestScreen = () => {
           setLoading(false);
         }
       };
-  
+
+    
       fetchQuestions(currentPage);
     }, [testId, currentPage, answers]);
-  
+
+
 
   useEffect(() => {
     const totalQuestions = pageDetails?.totalPages || 0;
@@ -100,7 +115,11 @@ const TestScreen = () => {
   useEffect(() => {
     if (questions.length > 0) {
       const questionId = questions[0]?.questionId;
+
+
+
       console.log(`Loaded question ${questionId}: ${selectedAnswer.label}`);
+
     }
   }, [questions, currentPage, selectedAnswer]);
 
@@ -111,6 +130,7 @@ const TestScreen = () => {
   };
 
   const handleAnswerChange = (event) => {
+
     if (isTestSubmitted) return;
 
     if (!isTestSubmitted) {
@@ -121,6 +141,7 @@ const TestScreen = () => {
         value: selectedValue,
         label: selectedOptionLabel
       });
+
     }
   };
 
@@ -137,13 +158,19 @@ const TestScreen = () => {
 
     try {
       await ExamServices.saveAnswer(questionId, testId, selectedAnswer, token);
+
       console.log('saveAnswer called with:', questionId, testId, selectedAnswer, token);
 
       // Notify user of success, if necessary
+
     } catch (error) {
       console.error('Failed to save answer:', error.message);
       alert('An error occurred while saving your answer.'); // Notify the user of an error
     }
+
+
+
+
     setAnswers(prev => ({ ...prev, [questionId]: selectedAnswer }));
   };
 
@@ -151,28 +178,38 @@ const TestScreen = () => {
     if (isTestSubmitted) {
       if (pageDetails && !pageDetails.lastPage) {
         setCurrentPage((prev) => prev + 1);
+
       }
+
       return;
     }
 
     if (!selectedAnswer.value && !marked) {
+
       alert('Please select an option or mark the question before proceeding to the next question.');
       return;
     }
     await saveAnswer(); // Save the answer before changing the page
     if (pageDetails && !pageDetails.lastPage) {
       setCurrentPage((prev) => prev + 1);
+
     }
   };
   const handlePrevPage = async () => {
+
     if (isTestSubmitted) {
       if (currentPage > 0) {
         setCurrentPage((prev) => prev - 1);
       }
       return;
+
+    
     }
+
    if (!selectedAnswer.value && !marked) {
-     // alert('Please select an option or mark the question before proceeding to the previous question.');
+
+      alert('Please select an option or mark the question before proceeding to the previous question.');
+
       return;
     }
     await saveAnswer(); // Save the answer before changing the page
@@ -188,6 +225,7 @@ const TestScreen = () => {
   };
 
   const handleSubmitTest = async () => {
+
     await saveAnswer();
     setIsTestSubmitted(true);
 
@@ -222,6 +260,7 @@ const TestScreen = () => {
   return (
     <div className="tab-container">
       <TabsComponent activeTab={activeTab} setActiveTab={setActiveTab} />
+
       {/* Scrollable container */}
       <Box
         sx={{
@@ -275,7 +314,9 @@ const TestScreen = () => {
               <Typography variant="h6" color="black" sx={{ fontSize: '0.875rem' }}>
                 Select 1 option(s):
               </Typography>
+
             </Box> 
+
             <RadioGroup value={selectedAnswer.value} onChange={handleAnswerChange} sx={{ mt: 3, ...(isTestSubmitted && { pointerEvents: 'none', opacity: 0.6, }),  }}>
               <FormControlLabel value="option1" control={<Radio  />} label={questions[0]?.option1} />
               <FormControlLabel value="option2" control={<Radio  />} label={questions[0]?.option2} />
@@ -349,3 +390,4 @@ const TestScreen = () => {
 };
 
 export default TestScreen;
+

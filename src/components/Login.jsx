@@ -38,6 +38,7 @@ const validationSchema = Yup.object({
     .required('Password is required'),
 });
 const LoginPage = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [activeTab, setActiveTab] = useState(0); // State for active tab
@@ -56,7 +57,7 @@ const LoginPage = () => {
       const response = await loginUser(values);
 
       if (response && response?.status === 200 && response?.data?.status === 'success') {
-
+        setIsLoggedIn(true);
         setSuccessMessage('Success! You have logged in successfully');
         setErrorMessage(null);
         const token = response.data.token;
@@ -92,7 +93,7 @@ const LoginPage = () => {
 
   return (
     <div className="tab-container">
-      <TabsComponent activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabsComponent activeTab={activeTab} setActiveTab={setActiveTab} isLoggedIn={isLoggedIn} />
     <Container maxWidth="sm">
       {successMessage && (
         <Stack sx={{ width: '100%', mt: 2 }} spacing={2}>
