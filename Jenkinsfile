@@ -65,22 +65,22 @@ pipeline {
                 }
             }
         }
-        // stage('Deploy to ECS') {
-        //     steps {
-        //         script {
-        //             // Update ECS services
-        //             sh """
-        //             aws ecs update-service --cluster ${ECS_CLUSTER} \
-        //                 --service backend-service \
-        //                 --force-new-deployment
+        stage('Deploy to ECS') {
+            steps {
+                script {
+                    // Update ECS services
+                    sh """
+                    aws ecs update-service --cluster ${ECS_CLUSTER} \
+                        --service backend-service \
+                        --force-new-deployment
 
-        //             aws ecs update-service --cluster ${ECS_CLUSTER} \
-        //                 --service frontend-service \
-        //                 --force-new-deployment
-        //             """
-        //         }
-        //     }
-        // }
+                    aws ecs update-service --cluster ${ECS_CLUSTER} \
+                        --service frontend-service \
+                        --force-new-deployment
+                    """
+                }
+            }
+        }
     }
     post {
         always {
