@@ -65,42 +65,37 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to EKS') {
-            steps {
-                script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
-                        // Configure kubectl for the EKS cluster
-                        sh '''
-                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                        export AWS_REGION=${AWS_REGION}
-                        aws eks --region $AWS_REGION update-kubeconfig --name examninja
-                        '''
+       stage('Deploy to EKS') {
+    steps {
+        script {
+            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+                // Configure kubectl for the EKS cluster
+                sh '''
+                export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                export AWS_REGION=us-east-2
+                aws eks --region $AWS_REGION update-kubeconfig --name examninja
+                '''
 
-                        // Deploy backend and MySQL to EKS
-                        dir('backend') {
-                            sh '''
-                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                            export AWS_REGION=${AWS_REGION}
-                            kubectl apply -f k8s/backend-deployment.yaml
-                            kubectl apply -f k8s/mysql-deployment.yaml
-                            '''
-                        }
+                // Deploy backend and MySQL to EKS
+                dir('examNinja-backend/k8s') {
+                    sh '''
+                    kubectl apply -f backend-deployment.yaml
+                    kubectl apply -f mysql-deployment.yaml
+                    '''
+                }
 
-                        // Deploy frontend to EKS
-                        dir('frontend') {
-                            sh '''
-                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                            export AWS_REGION=${AWS_REGION}
-                            kubectl apply -f k8s/frontend-deployment.yaml
-                            '''
-                        }
-                    }
+                // Deploy frontend to EKS
+                dir('examNinja_frontend/k8s') {
+                    sh '''
+                    kubectl apply -f frontend-deployment.yaml
+                    '''
                 }
             }
         }
+    }
+}
+
     }
     post {
         always {
