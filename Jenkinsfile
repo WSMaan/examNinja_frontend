@@ -3,12 +3,12 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID = "583187964056"
         AWS_REGION = "us-east-2"
-        ECR_REPOSITORY_NAME = "examninja"
-        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-
-        BACKEND_DIR = "backend"
-        FRONTEND_DIR = "frontend"
-        ECS_CLUSTER = "examninja"
+        EKS_CLUSTER_NAME = "examninja"
+        EKS_NAMESPACE = "default"
+        BACKEND_IMAGE = "backend_latest"
+        FRONTEND_IMAGE = "frontend_latest"
+        BACKEND_DEPLOYMENT_FILE = "k8s/backend-deployment.yaml"
+        FRONTEND_DEPLOYMENT_FILE = "k8s/frontend-deployment.yaml"
     }
     stages {
         stage('Setup AWS Credentials') {
@@ -31,63 +31,30 @@ pipeline {
                 }
             }
         }
-        stage('Build Backend') {
-            steps {
-                dir('backend') {
-                    sh 'mvn clean install'
-                }
-            }
-        }
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
-            }
-        }
         stage('Build Docker Images') {
             steps {
                 dir('backend') {
-                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest ."
+                    sh "docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_IMAGE} ."
                 }
                 dir('frontend') {
-                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest ."
+                    sh "docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${FRONTEND_IMAGE} ."
                 }
             }
         }
         stage('Push Docker Images to ECR') {
             steps {
                 script {
-                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
-                    sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                    sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_IMAGE}"
+                    sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${FRONTEND_IMAGE}"
                 }
             }
         }
-        stage('Deploy to ECS') {
+        stage('Deploy to EKS') {
             steps {
                 script {
-                    // Deploy the MySQL service
-                    sh """
-                    aws ecs update-service --cluster ${ECS_CLUSTER} \
-                        --service mysql-service \
-                        --force-new-deployment
-                    """
-
-                    // Deploy the backend service
-                    sh """
-                    aws ecs update-service --cluster ${ECS_CLUSTER} \
-                        --service backend-service \
-                        --force-new-deployment
-                    """
-
-                    // Deploy the frontend service
-                    sh """
-                    aws ecs update-service --cluster ${ECS_CLUSTER} \
-                        --service frontend-service \
-                        --force-new-deployment
-                    """
+                    sh "kubectl apply -f ${BACKEND_DEPLOYMENT_FILE}"
+                    sh "kubectl apply -f ${FRONTEND_DEPLOYMENT_FILE}"
                 }
             }
         }
@@ -102,7 +69,7 @@ pipeline {
             }
         }
         success {
-            echo "Pipeline succeeded! Docker images are deployed to ECS."
+            echo "Pipeline succeeded! Application deployed to EKS."
         }
     }
 }
