@@ -68,12 +68,22 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 script {
-                    // Update ECS services
+                    // Deploy the MySQL service
+                    sh """
+                    aws ecs update-service --cluster ${ECS_CLUSTER} \
+                        --service mysql-service \
+                        --force-new-deployment
+                    """
+
+                    // Deploy the backend service
                     sh """
                     aws ecs update-service --cluster ${ECS_CLUSTER} \
                         --service backend-service \
                         --force-new-deployment
+                    """
 
+                    // Deploy the frontend service
+                    sh """
                     aws ecs update-service --cluster ${ECS_CLUSTER} \
                         --service frontend-service \
                         --force-new-deployment
