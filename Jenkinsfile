@@ -56,9 +56,11 @@ pipeline {
                 script {
                     // Log in to ECR and push Docker images
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
-                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-                        sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
-                        sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+                        sh '''
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest
+                        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest
+                        '''
                     }
                 }
             }
@@ -66,20 +68,35 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 script {
-                    // Configure kubectl for the EKS cluster
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
-                        sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
-                    }
+                        // Configure kubectl for the EKS cluster
+                        sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        export AWS_REGION=${AWS_REGION}
+                        aws eks --region $AWS_REGION update-kubeconfig --name examninja
+                        '''
 
-                    // Deploy backend and MySQL to EKS
-                    dir('backend') {
-                        sh 'kubectl apply -f k8s/backend-deployment.yaml'
-                        sh 'kubectl apply -f k8s/mysql-deployment.yaml'
-                    }
+                        // Deploy backend and MySQL to EKS
+                        dir('backend') {
+                            sh '''
+                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                            export AWS_REGION=${AWS_REGION}
+                            kubectl apply -f k8s/backend-deployment.yaml
+                            kubectl apply -f k8s/mysql-deployment.yaml
+                            '''
+                        }
 
-                    // Deploy frontend to EKS
-                    dir('frontend') {
-                        sh 'kubectl apply -f k8s/frontend-deployment.yaml'
+                        // Deploy frontend to EKS
+                        dir('frontend') {
+                            sh '''
+                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                            export AWS_REGION=${AWS_REGION}
+                            kubectl apply -f k8s/frontend-deployment.yaml
+                            '''
+                        }
                     }
                 }
             }
