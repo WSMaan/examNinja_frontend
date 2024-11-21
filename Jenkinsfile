@@ -6,15 +6,9 @@ pipeline {
         ECR_REPOSITORY_NAME = "examninja"
         BACKEND_DIR = "backend"
         FRONTEND_DIR = "frontend"
+        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
     }
     stages {
-        stage('Setup AWS Registry') {
-            steps {
-                script {
-                    env.ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-                }
-            }
-        }
         stage('Setup AWS Credentials') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
@@ -57,7 +51,6 @@ pipeline {
                 }
             }
         }
-      stages {
         stage('Push Docker Images to ECR') {
             steps {
                 script {
@@ -105,5 +98,4 @@ pipeline {
             echo 'Pipeline succeeded!'
         }
     }
-}
 }
