@@ -4,19 +4,21 @@ pipeline {
         AWS_ACCOUNT_ID = "583187964056"
         AWS_REGION = "us-east-2"
         ECR_REPOSITORY_NAME = "examninja"
-        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-
         BACKEND_DIR = "backend"
         FRONTEND_DIR = "frontend"
     }
     stages {
+        stage('Setup AWS Registry') {
+            steps {
+                script {
+                    env.ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                }
+            }
+        }
         stage('Setup AWS Credentials') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
-                    script {
-                        env.AWS_ACCESS_KEY_ID = "${env.AWS_ACCESS_KEY_ID}"
-                        env.AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ACCESS_KEY}"
-                    }
+                    echo 'AWS Credentials configured'
                 }
             }
         }
@@ -67,32 +69,30 @@ pipeline {
                     sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
                     
                     // Deploy backend and MySQL to EKS
-                    dir(BACKEND_DIR) {
+                    dir('backend') {
                         sh 'kubectl apply -f k8s/backend-deployment.yaml'
                         sh 'kubectl apply -f k8s/mysql-deployment.yaml'
                     }
                     
                     // Deploy frontend to EKS
-                    dir(FRONTEND_DIR) {
+                    dir('frontend') {
                         sh 'kubectl apply -f k8s/frontend-deployment.yaml'
                     }
                 }
             }
         }
-            post {
+    }
+    post {
         always {
             cleanWs()
         }
         failure {
             script {
-                echo "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage."
-                // slackSend(channel: '#exam-ninja', color: 'danger', message: "Pipeline failed due to failure in the ${env.FAILURE_REASON} stage. Check Jenkins for details.")
+                echo "Pipeline failed in stage: ${env.STAGE_NAME}"
             }
         }
         success {
-            // slackSend(channel: '#exam-ninja', color: 'good', message: 'Pipeline succeeded!')
             echo 'Pipeline succeeded!'
         }
-    }
     }
 }
