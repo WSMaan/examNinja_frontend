@@ -65,7 +65,7 @@ pipeline {
                 }
             }
         }
-       stage('Deploy to EKS') {
+   stage('Deploy to EKS') {
     steps {
         script {
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
@@ -77,24 +77,26 @@ pipeline {
                 aws eks --region $AWS_REGION update-kubeconfig --name examninja
                 '''
 
-                // Deploy backend and MySQL to EKS
-                dir('examNinja-backend/k8s') {
+                // Clone repositories to ensure files are available
+                dir('examNinja-backend') {
+                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
                     sh '''
-                    kubectl apply -f backend-deployment.yaml
-                    kubectl apply -f mysql-deployment.yaml
+                    kubectl apply -f k8s/backend-deployment.yaml
+                    kubectl apply -f k8s/mysql-deployment.yaml
                     '''
                 }
 
-                // Deploy frontend to EKS
-                dir('examNinja_frontend/k8s') {
+                dir('examNinja_frontend') {
+                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
                     sh '''
-                    kubectl apply -f frontend-deployment.yaml
+                    kubectl apply -f k8s/frontend-deployment.yaml
                     '''
                 }
             }
         }
     }
 }
+
 
     }
     post {
