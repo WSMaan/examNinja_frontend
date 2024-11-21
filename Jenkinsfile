@@ -57,33 +57,40 @@ pipeline {
                 }
             }
         }
-      stage('Push Docker Images to ECR and Deploy to EKS') {
-    steps {
-        script {
-            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
-                // Log in to ECR and push Docker images
-                sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-                sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
-                sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
-            }
-            
-            // Configure kubectl for the EKS cluster
-            sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
-
-            // Deploy backend and MySQL to EKS
-            dir('backend') {
-                sh 'kubectl apply -f k8s/backend-deployment.yaml'
-                sh 'kubectl apply -f k8s/mysql-deployment.yaml'
-            }
-            
-            // Deploy frontend to EKS
-            dir('frontend') {
-                sh 'kubectl apply -f k8s/frontend-deployment.yaml'
+      stages {
+        stage('Push Docker Images to ECR') {
+            steps {
+                script {
+                    // Log in to ECR and push Docker images
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                        sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest"
+                        sh "docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest"
+                    }
+                }
             }
         }
-    }
-}
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    // Configure kubectl for the EKS cluster
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+                        sh "aws eks --region ${AWS_REGION} update-kubeconfig --name examninja"
+                    }
 
+                    // Deploy backend and MySQL to EKS
+                    dir('backend') {
+                        sh 'kubectl apply -f k8s/backend-deployment.yaml'
+                        sh 'kubectl apply -f k8s/mysql-deployment.yaml'
+                    }
+
+                    // Deploy frontend to EKS
+                    dir('frontend') {
+                        sh 'kubectl apply -f k8s/frontend-deployment.yaml'
+                    }
+                }
+            }
+        }
     }
     post {
         always {
