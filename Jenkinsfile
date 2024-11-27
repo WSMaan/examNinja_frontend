@@ -81,8 +81,9 @@ pipeline {
                 dir('examNinja-backend') {
                     git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
                     sh '''
-                    kubectl apply -f k8s/backend-deployment.yaml
                     kubectl apply -f k8s/mysql-deployment.yaml
+                    kubectl apply -f k8s/backend-deployment.yaml
+                    
                     '''
                 }
 
