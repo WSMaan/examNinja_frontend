@@ -44,10 +44,10 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 dir('backend') {
-                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest ."
+                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend ."
                 }
                 dir('frontend') {
-                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest ."
+                    sh "docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend ."
                 }
             }
         }
@@ -58,8 +58,8 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
                         sh '''
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend_latest
-                        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend_latest
+                        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:backend
+                        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY_NAME}:frontend
                         '''
                     }
                 }
