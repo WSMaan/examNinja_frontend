@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend-container
-        image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja:frontend_latest
+        image: 583187964056.dkr.ecr.us-east-2.amazonaws.com/examninja:frontend
         ports:
         - containerPort: 80
 ---
