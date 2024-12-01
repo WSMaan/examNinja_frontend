@@ -7,6 +7,8 @@ pipeline {
         BACKEND_DIR = "backend"
         FRONTEND_DIR = "frontend"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        MYSQL_IMAGE = "mysql:latest"
+        MYSQL_ECR_REPOSITORY = "${ECR_REGISTRY}/mysql"
     }
     stages {
         stage('Setup AWS Credentials') {
@@ -65,40 +67,50 @@ pipeline {
                 }
             }
         }
-   stage('Deploy to EKS') {
-    steps {
-        script {
-            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
-                // Configure kubectl for the EKS cluster
-                sh '''
-                export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                export AWS_REGION=us-east-2
-                aws eks --region $AWS_REGION update-kubeconfig --name exam
-                '''
-
-                // Clone repositories to ensure files are available
-                dir('examNinja-backend') {
-                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
-                    sh '''
-                    kubectl apply -f k8s/mysql-deployment.yaml
-                    kubectl apply -f k8s/backend-deployment.yaml
-                    
-                    '''
-                }
-
-                dir('examNinja_frontend') {
-                    git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
-                    sh '''
-                    kubectl apply -f k8s/frontend-deployment.yaml
-                    '''
+        stage('Push MySQL Docker Image to ECR') {
+            steps {
+                script {
+                    // Log in to ECR and push the MySQL image
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+                        sh '''
+                        docker pull ${MYSQL_IMAGE}
+                        docker tag ${MYSQL_IMAGE} ${MYSQL_ECR_REPOSITORY}:latest
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                        docker push ${MYSQL_ECR_REPOSITORY}:latest
+                        '''
+                    }
                 }
             }
         }
-    }
-}
-
-
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_key']]) {
+                        // Configure kubectl for the EKS cluster
+                        sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        export AWS_REGION=us-east-2
+                        aws eks --region $AWS_REGION update-kubeconfig --name exam
+                        '''
+                        // Clone repositories to ensure files are available
+                        dir('examNinja-backend') {
+                            git branch: 'master', url: 'https://github.com/WSMaan/examNinja-backend.git', credentialsId: 'GIT_HUB'
+                            sh '''
+                            kubectl apply -f k8s/mysql-deployment.yaml
+                            kubectl apply -f k8s/backend-deployment.yaml
+                            '''
+                        }
+                        dir('examNinja_frontend') {
+                            git branch: 'master', url: 'https://github.com/WSMaan/examNinja_frontend.git', credentialsId: 'GIT_HUB'
+                            sh '''
+                            kubectl apply -f k8s/frontend-deployment.yaml
+                            '''
+                        }
+                    }
+                }
+            }
+        }
     }
     post {
         always {
